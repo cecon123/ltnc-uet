@@ -23,6 +23,11 @@ Phương pháp duyệt một lần được chọn để đáp ứng yêu cầu 
 * Xử lý tốt các mảng có phần tử trùng nhau hoặc mảng không có phần tử lớn thứ hai hợp lệ.
 
 ## 3. Cách chạy chương trình
-```bash
-./run.sh
-```
+1. Cấp quyền thực thi cho script (chỉ cần làm lần đầu):
+   ```bash
+   chmod +x run.sh
+   ```
+2. Chạy chương trình bằng lệnh:
+   ```bash
+   ./run.sh
+   ```

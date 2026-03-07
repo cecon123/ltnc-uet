@@ -20,6 +20,11 @@ Phương pháp sử dụng toán học được lựa chọn vì tính tối ưu
 * Xử lý triệt để các trường hợp đặc biệt: số âm, số có chữ số 0 ở cuối (như 120 đảo thành 21), và đặc biệt là các số gây tràn dữ liệu kiểu `int`.
 
 ## 3. Cách chạy chương trình
-```bash
-./run.sh
-```
+1. Cấp quyền thực thi cho script (chỉ cần làm lần đầu):
+   ```bash
+   chmod +x run.sh
+   ```
+2. Chạy chương trình bằng lệnh:
+   ```bash
+   ./run.sh
+   ```

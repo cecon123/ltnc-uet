@@ -20,6 +20,11 @@ Thuật toán Euclid là phương pháp tiêu chuẩn và hiệu quả nhất ch
 * Xử lý chính xác các trường hợp đặc biệt như khi một trong hai số bằng 0 hoặc khi gặp số nguyên âm.
 
 ## 3. Cách chạy chương trình
-```bash
-./run.sh
-```
+1. Cấp quyền thực thi cho script (chỉ cần làm lần đầu):
+   ```bash
+   chmod +x run.sh
+   ```
+2. Chạy chương trình bằng lệnh:
+   ```bash
+   ./run.sh
+   ```

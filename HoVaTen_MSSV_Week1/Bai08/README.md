@@ -21,6 +21,11 @@ Phương pháp toán học được ưu tiên sử dụng để đáp ứng yêu
 * Xử lý chính xác các trường hợp đặc biệt: số 0 (là số đối xứng), số có chữ số 0 ở cuối (không đối xứng, ví dụ 1230), và các số âm.
 
 ## 3. Cách chạy chương trình
-```bash
-./run.sh
-```
+1. Cấp quyền thực thi cho script (chỉ cần làm lần đầu):
+   ```bash
+   chmod +x run.sh
+   ```
+2. Chạy chương trình bằng lệnh:
+   ```bash
+   ./run.sh
+   ```
