@@ -1,119 +1,32 @@
-# Copilot Instructions – Git Commit Convention
+# Git Commit Guidelines
 
-## 🎯 Goal
-All git commit messages must follow the **Conventional Commits** specification to ensure:
-- Clear change history
-- Semantic versioning support
-- Easy changelog generation
-- Professional and consistent structure
+Khi tạo commit message, hãy tuân thủ nghiêm ngặt các quy tắc sau:
 
----
+## 1. Cấu trúc Conventional Commits
+Sử dụng định dạng: `<type>(<scope>): <description>`
 
-## 📌 Commit Message Format
+- **feat**: Một tính năng mới.
+- **fix**: Sửa lỗi.
+- **docs**: Thay đổi tài liệu.
+- **style**: Thay đổi định dạng code (không ảnh hưởng logic).
+- **refactor**: Tái cấu trúc code (không sửa lỗi cũng không thêm tính năng).
+- **perf**: Cải thiện hiệu năng.
+- **test**: Thêm hoặc sửa test.
+- **chore**: Thay đổi build process, package manager, v.v.
+- **ci**: Thay đổi cấu hình CI/CD.
 
-<type>(<scope>): <short summary>
+## 2. Quy tắc viết Description
+- **Ngôn ngữ**: Tiếng Anh (hoặc Tiếng Việt tùy theo config dự án, ưu tiên Tiếng Anh cho chuyên nghiệp).
+- **Thì hiện tại (Imperative mood)**: Sử dụng "add" thay vì "added", "fix" thay vì "fixed".
+- **Viết hoa**: Không viết hoa chữ cái đầu của description.
+- **Dấu chấm**: Không đặt dấu chấm ở cuối dòng.
+- **Độ dài**: Dòng tiêu đề không quá 50 ký tự.
 
-[optional body]
+## 3. Nội dung chi tiết (Body) - Nếu cần thiết
+- Giải thích **TẠI SAO** thay đổi, không phải **CÁI GÌ** (Code đã thể hiện cái gì rồi).
+- Nếu có thay đổi quan trọng về logic (Breaking Change), ghi rõ `BREAKING CHANGE:` ở đầu phần body.
 
-[optional footer(s)]
-
----
-
-## ✅ Allowed Types
-
-- feat:     A new feature
-- fix:      A bug fix
-- docs:     Documentation changes
-- style:    Code style changes (formatting, missing semicolons, etc)
-- refactor: Code refactoring (no feature change, no bug fix)
-- perf:     Performance improvement
-- test:     Adding or updating tests
-- build:    Build system or dependency changes
-- ci:       CI/CD configuration changes
-- chore:    Maintenance tasks
-- revert:   Revert a previous commit
-
----
-
-## 🧱 Rules
-
-1. Use lowercase for type.
-2. Scope is optional but recommended (e.g. auth, api, ui, core, config).
-3. Summary must:
-   - Be short (max ~72 characters)
-   - Use imperative mood (e.g., "add", not "added" or "adds")
-   - Not end with a period
-4. Add body when needed to explain:
-   - Why the change was made
-   - What side effects might occur
-5. Use footer for:
-   - BREAKING CHANGE:
-   - Closes #issue-number
-
----
-
-## 💥 Breaking Changes
-
-Use:
-
-feat(auth)!: change login response structure
-
-OR
-
-BREAKING CHANGE: explain what changed and how to migrate
-
----
-
-## 🧪 Examples
-
-feat(auth): add JWT authentication middleware
-
-fix(api): handle null pointer in user service
-
-docs(readme): update installation guide
-
-refactor(core): simplify validation logic
-
-perf(db): optimize user query with index
-
-test(auth): add unit tests for login service
-
-chore(deps): upgrade express to v5
-
----
-
-## 🚫 Avoid
-
-❌ Bad:
-- update code
-- fix bug
-- changes
-- WIP
-- done
-- sửa lỗi
-
-❌ Do not:
-- Write commit messages in Vietnamese
-- Use vague summaries
-- Skip the type prefix
-
----
-
-## 🧠 When Generating Commit Messages
-
-Copilot should:
-1. Detect the type based on code changes.
-2. Infer scope from affected folder/module.
-3. Keep summary concise and meaningful.
-4. Follow the format strictly.
-
----
-
-## 📦 Example Output
-
-feat(user): add email verification flow
-
-Add verification token generation and email sending logic.
-Update user schema to include verified flag.
-
-Closes #123
+## 4. Ví dụ mẫu
+- `feat(auth): add OAuth2 provider support`
+- `fix(parser): resolve overflow when handling large malware samples`
+- `refactor(utils): simplify string conversion logic in Rust`
