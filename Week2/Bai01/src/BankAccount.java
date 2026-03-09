@@ -1,7 +1,7 @@
 public class BankAccount {
     private final String accountNumber;
     private double balance;
-    private String ownerName;
+    private final String ownerName;
 
     public BankAccount(String accountNumber, String ownerName) {
         this.accountNumber = accountNumber;
