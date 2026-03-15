@@ -193,7 +193,7 @@ Bài này giúp hiểu rõ:
 
 ---
 
-## 3. Cách chạy chương trình
+## 2. Cách chạy chương trình
 
 1. **Cấp quyền thực thi cho script:**
    ```bash
