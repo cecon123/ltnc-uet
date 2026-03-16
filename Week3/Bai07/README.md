@@ -1,30 +1,25 @@
-# Bài 7 – Hệ thống quản lý khách sạn
+# Bài 7 – Quản lý khách sạn
 
 ## 1. Tóm tắt ý tưởng chính của lời giải
 
-Bài toán yêu cầu xây dựng hệ thống tính tiền phòng khách sạn với hai loại phòng:
+Bài toán xây dựng hệ thống tính tiền thuê phòng trong khách sạn.
 
-1. **Standard Room**
-   - Giá: 500.000đ / đêm
-   - Nếu ở **trên 3 đêm** → giảm **5% tổng tiền**
+Khách sạn có 2 loại phòng:
 
-2. **VIP Room**
-   - Giá: 2.000.000đ / đêm
-   - Không giảm giá dù ở bao lâu
-   - Đã bao gồm dịch vụ ăn sáng
+1. **Standard**
+2. **VIP**
 
-Hệ thống được thiết kế theo hướng **OOP** để dễ mở rộng và quản lý logic tính tiền.
+Mỗi loại phòng có **quy tắc tính tiền khác nhau**, vì vậy hệ thống được thiết kế bằng:
 
-Các nguyên tắc áp dụng:
+- **Abstract Class**
+- **Inheritance**
+- **Polymorphism**
 
-- Abstraction
-- Inheritance
-- Polymorphism
-- Encapsulation
+Nhờ đó chương trình có thể xử lý nhiều loại phòng bằng cùng một interface.
 
 ---
 
-# Thiết kế hệ thống
+# Phân tích thiết kế
 
 ## Lớp trừu tượng Room
 
@@ -49,29 +44,31 @@ public abstract class Room {
 pricePerNight
 ```
 
-→ giá phòng cho mỗi đêm.
+→ Giá thuê mỗi đêm.
 
-### Phương thức trừu tượng
+### Phương thức
 
 ```
 calculatePrice(int nights)
 ```
 
-→ mỗi loại phòng sẽ có cách tính giá khác nhau.
+→ Tính tổng tiền thuê phòng.
+
+Phương thức này sẽ được **override** trong các lớp con.
 
 ---
 
 # Lớp StandardRoom
 
-Lớp đại diện cho phòng Standard. :contentReference[oaicite:5]{index=5}
+Đại diện cho phòng **Standard**. :contentReference[oaicite:5]{index=5}
 
-### Giá cơ bản
+### Giá phòng
 
 ```
-500.000đ / đêm
+500000đ / đêm
 ```
 
-### Chính sách giảm giá
+### Chính sách
 
 Nếu khách ở **hơn 3 đêm**:
 
@@ -99,18 +96,18 @@ public double calculatePrice(int nights) {
 
 # Lớp VipRoom
 
-Lớp đại diện cho phòng VIP. :contentReference[oaicite:6]{index=6}
+Đại diện cho phòng **VIP**. :contentReference[oaicite:6]{index=6}
 
 ### Giá phòng
 
 ```
-2.000.000đ / đêm
+2000000đ / đêm
 ```
 
 ### Chính sách
 
 - Không giảm giá
-- Bao gồm ăn sáng
+- Đã bao gồm ăn sáng
 
 ### Implementation
 
@@ -134,13 +131,8 @@ class Room {
     +calculatePrice(nights) double
 }
 
-class StandardRoom {
-    +calculatePrice(nights)
-}
-
-class VipRoom {
-    +calculatePrice(nights)
-}
+class StandardRoom
+class VipRoom
 
 Room <|-- StandardRoom
 Room <|-- VipRoom
@@ -148,15 +140,60 @@ Room <|-- VipRoom
 
 ---
 
+# Xử lý Input
+
+Chương trình đọc dữ liệu từ bàn phím.
+
+Ví dụ:
+
+```
+S 3
+```
+
+### Ý nghĩa
+
+```
+S → Standard Room
+3 → số đêm
+```
+
+Hoặc:
+
+```
+V 2
+```
+
+### Ý nghĩa
+
+```
+V → VIP Room
+2 → số đêm
+```
+
+---
+
+# Tạo object tương ứng
+
+Chương trình sử dụng `switch` để xác định loại phòng. :contentReference[oaicite:7]{index=7}
+
+```java
+switch (type) {
+    case 'S' -> room = new StandardRoom(500000);
+    case 'V' -> room = new VipRoom(2000000);
+}
+```
+
+---
+
 # Áp dụng Polymorphism
 
-Trong chương trình:
+Biến:
 
 ```
-Room room = null;
+Room room;
 ```
 
-Biến `room` có thể chứa:
+có thể chứa:
 
 ```
 StandardRoom
@@ -173,57 +210,78 @@ Java sẽ tự động gọi đúng phương thức của object thực tế.
 
 ---
 
-# Thực hành trong chương trình
+# Ví dụ
 
-Người dùng nhập:
+## Input
 
-```
-room type
-number of nights
-```
-
-Ví dụ:
+Case 1
 
 ```
-Enter room type (standard/vip): standard
-Enter number of nights: 4
+S 3
 ```
 
-Tính tiền:
+### Tính toán
 
 ```
-4 × 500000 = 2000000
-Giảm 5% → 1.900.000
+3 × 500000 = 1500000
+```
+
+### Output
+
+```
+1500000
 ```
 
 ---
 
-# Ví dụ kết quả
+## Input
 
-### Standard Room – 2 đêm
-
-```
-2 × 500000 = 1.000.000
-```
-
-### Standard Room – 4 đêm
+Case 2
 
 ```
-4 × 500000 = 2.000.000
-Giảm 5% → 1.900.000
+S 4
 ```
 
-### VIP Room – 4 đêm
+### Tính toán
 
 ```
-4 × 2.000.000 = 8.000.000
+4 × 500000 = 2000000
+giảm 5% → 1900000
+```
+
+### Output
+
+```
+1900000
+```
+
+---
+
+## Input
+
+Case 3
+
+```
+V 2
+```
+
+### Tính toán
+
+```
+2 × 2000000 = 4000000
+```
+
+### Output
+
+```
+4000000
 ```
 
 ---
 
 # Ý nghĩa bài học
 
-Bài này minh họa rõ cách thiết kế hệ thống nghiệp vụ bằng OOP.
+Bài này minh họa các nguyên tắc OOP quan trọng.
 
 ### Abstraction
 
@@ -244,43 +302,40 @@ VipRoom extends Room
 
 ### Polymorphism
 
+Cùng một lời gọi:
+
 ```
-room.calculatePrice()
+calculatePrice()
 ```
 
-mỗi loại phòng có cách tính khác nhau.
+nhưng mỗi loại phòng có logic khác nhau.
 
 ---
 
-### Encapsulation
+# Ưu điểm thiết kế
 
-Logic tính giá được đóng gói trong từng class.
+Hệ thống rất dễ mở rộng.
 
----
-
-# Ưu điểm của thiết kế
-
-Hệ thống dễ mở rộng.
-
-Ví dụ thêm loại phòng:
+Ví dụ thêm:
 
 ```
 DeluxeRoom
-SuiteRoom
 FamilyRoom
+SuiteRoom
 ```
 
-Chỉ cần:
+chỉ cần:
 
 ```
 extends Room
+override calculatePrice()
 ```
 
 không cần sửa code cũ.
 
 ---
 
-## 2. Cách chạy chương trình
+## 3. Cách chạy chương trình
 
 1. **Cấp quyền thực thi cho script:**
    ```bash

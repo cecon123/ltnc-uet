@@ -15,5 +15,7 @@ public class Invoice implements IPayable {
     public double getPaymentAmount() {
         return quantity * pricePerItem;
     }
-
+    public String getItemName() {
+        return itemName;
+    }
 }

@@ -1,42 +1,47 @@
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) {
-        List<Robot> robots = new ArrayList<>();
-        robots.add(new DroneRobot(1, "SkyEyeY"));
-        robots.add(new FishRobot(2, "AquaBotX"));
-        robots.add(new AmphibiousRobot(3, "AmphiX"));
 
-        for (Robot r : robots) {
-            r.performMainTask();
-        }
+        try (Scanner sc = new Scanner(System.in)) {
 
-        Robot r1 = robots.get(0);
+            int n = sc.nextInt();
+            List<Robot> robots = new ArrayList<>();
 
-        if (r1 instanceof Flyable) {
-            Flyable f = (Flyable) r1;
-            f.fly();
-        }
+            for (int i = 0; i < n; i++) {
 
-        if (r1 instanceof GPS) {
-            GPS g = (GPS) r1;
-            g.getCoordinates();
-        }
+                String type = sc.next();
+                int id = sc.nextInt();
+                String model = sc.next();
 
-        Robot r2 = robots.get(1);
-        if (r2 instanceof Swimmable) {
-            Swimmable s = (Swimmable) r2;
-            s.swim();
-        }
+                switch (type) {
+                    case "DR" ->
+                        robots.add(new DroneRobot(id, model));
+                    case "FR" ->
+                        robots.add(new FishRobot(id, model));
+                    case "AR" ->
+                        robots.add(new AmphibiousRobot(id, model));
+                }
+            }
 
-        Robot r3 = robots.get(2);
+            for (Robot r : robots) {
 
-        if (r3 instanceof Flyable) {
-            Flyable f = (Flyable) r3;
-            f.fly();
+                r.performMainTask();
+
+                if (r instanceof Flyable f) {
+                    f.fly();
+                }
+
+                if (r instanceof Swimmable s) {
+                    s.swim();
+                }
+
+                if (r instanceof GPS g) {
+                    g.getCoordinates();
+                }
+            }
         }
     }
 }

@@ -1,29 +1,29 @@
-# Bài 5 – Payroll System
+# Bài 5 – Hệ thống tính lương Payroll System
 
 ## 1. Tóm tắt ý tưởng chính của lời giải
 
-Bài toán xây dựng hệ thống tính lương cho nhân viên của một công ty phần mềm.
+Bài toán yêu cầu xây dựng hệ thống tính lương cho nhân viên trong công ty phần mềm.
 
 Có hai loại nhân viên:
 
-- **Full-time Employee**
-- **Part-time Employee**
+1. **Full-time Employee**
+2. **Part-time Employee**
 
-Mỗi loại có **cách tính lương khác nhau**. Vì vậy hệ thống được thiết kế bằng:
+Mỗi loại có **công thức tính lương khác nhau**, do đó hệ thống được thiết kế bằng:
 
-- **Abstract class**
+- **Abstract Class**
 - **Inheritance**
 - **Polymorphism**
 
-Mục tiêu là để hệ thống có thể xử lý nhiều loại nhân viên nhưng vẫn sử dụng cùng một cấu trúc chung.
+Nhờ đó chương trình có thể lưu nhiều loại nhân viên trong cùng một mảng `Employee[]`.
 
 ---
 
-# Thiết kế hệ thống
+# Phân tích thiết kế
 
 ## Lớp trừu tượng Employee
 
-Lớp `Employee` chứa các thông tin chung của mọi nhân viên:
+Lớp `Employee` là lớp cha chứa thông tin chung của mọi nhân viên. :contentReference[oaicite:4]{index=4}
 
 ```java
 abstract class Employee {
@@ -39,53 +39,46 @@ abstract class Employee {
     }
 
     public abstract double calcSalary();
+
     public abstract String getType();
 }
 ```
 
 ### Thuộc tính chung
 
-- `name` : Tên nhân viên
-- `dob` : Ngày sinh
-- `id` : Mã nhân viên
+```
+name
+dob
+id
+```
 
 ### Phương thức trừu tượng
 
 ```
 calcSalary()
-```
-
-→ Tính lương (mỗi loại nhân viên tính khác nhau)
-
-```
 getType()
 ```
 
-→ Trả về loại nhân viên
-
-Lớp này **không thể tạo object trực tiếp** vì nó là abstract class.
+Các lớp con sẽ phải **override** hai phương thức này.
 
 ---
 
 # Lớp FullTimeEmployee
 
-```java
-public class FullTimeEmployee extends Employee {
-
-    private double baseSalary, bonus, penalty;
-}
-```
+Đại diện cho nhân viên làm việc toàn thời gian. :contentReference[oaicite:5]{index=5}
 
 ### Thuộc tính
 
-- `baseSalary`
-- `bonus`
-- `penalty`
+```
+baseSalary
+bonus
+penalty
+```
 
-### Công thức tính lương
+### Công thức lương
 
 ```
-Salary = baseSalary + (bonus - penalty)
+salary = baseSalary + (bonus - penalty)
 ```
 
 ### Implementation
@@ -101,23 +94,19 @@ public double calcSalary() {
 
 # Lớp PartTimeEmployee
 
-```java
-public class PartTimeEmployee extends Employee {
-
-    private int workingHours;
-    private double hourlyRate;
-}
-```
+Đại diện cho nhân viên làm việc bán thời gian. :contentReference[oaicite:6]{index=6}
 
 ### Thuộc tính
 
-- `workingHours`
-- `hourlyRate`
+```
+workingHours
+hourlyRate
+```
 
-### Công thức tính lương
+### Công thức lương
 
 ```
-Salary = workingHours * hourlyRate
+salary = workingHours * hourlyRate
 ```
 
 ### Implementation
@@ -149,15 +138,11 @@ class FullTimeEmployee {
     -baseSalary : double
     -bonus : double
     -penalty : double
-    +calcSalary()
-    +getType()
 }
 
 class PartTimeEmployee {
     -workingHours : int
     -hourlyRate : double
-    +calcSalary()
-    +getType()
 }
 
 Employee <|-- FullTimeEmployee
@@ -166,15 +151,78 @@ Employee <|-- PartTimeEmployee
 
 ---
 
-# Áp dụng Polymorphism
+# Xử lý Input
 
-Trong `main`:
+Chương trình đọc số lượng nhân viên:
 
-```java
-Employee[] employees = new Employee[2];
+```
+n
 ```
 
-Mặc dù mảng có kiểu `Employee[]`, nhưng có thể chứa:
+Sau đó đọc từng dòng dữ liệu.
+
+Ví dụ:
+
+```
+F "Nguyễn Văn A" 1500 200 50
+```
+
+### Ý nghĩa
+
+```
+F → FullTimeEmployee
+Nguyễn Văn A → name
+1500 → baseSalary
+200 → bonus
+50 → penalty
+```
+
+Hoặc:
+
+```
+P "Trần Thị B" 80 10
+```
+
+### Ý nghĩa
+
+```
+P → PartTimeEmployee
+Trần Thị B → name
+80 → workingHours
+10 → hourlyRate
+```
+
+---
+
+# Phân tích cách parse dữ liệu
+
+Tên nhân viên nằm trong dấu `" "`.
+
+Chương trình lấy vị trí dấu ngoặc kép:
+
+```java
+int firstQuote = line.indexOf("\"");
+int secondQuote = line.indexOf("\"", firstQuote + 1);
+```
+
+Sau đó tách phần số phía sau:
+
+```java
+String remain = line.substring(secondQuote + 2);
+String[] nums = remain.split(" ");
+```
+
+---
+
+# Áp dụng Polymorphism
+
+Tất cả nhân viên được lưu trong mảng:
+
+```java
+Employee[] employees = new Employee[n];
+```
+
+Nhưng mỗi phần tử có thể là:
 
 ```
 FullTimeEmployee
@@ -183,50 +231,56 @@ PartTimeEmployee
 
 Khi gọi:
 
-```java
-emp.calcSalary()
+```
+e.calcSalary()
 ```
 
-Java sẽ tự động gọi đúng phương thức của object thực tế.
-
-Đây chính là **Runtime Polymorphism**.
+Java sẽ tự động gọi đúng phương thức của từng object.
 
 ---
 
-# Thực hành trong main
+# In bảng lương
 
 ```java
-Employee[] employees = new Employee[2];
-
-employees[0] = new FullTimeEmployee("Alice", "01/01/1990", "E001", 5000, 500, 200);
-employees[1] = new PartTimeEmployee("Bob", "02/02/1995", "E002", 80, 20);
-```
-
-Sau đó in bảng lương:
-
-```
-Name: Alice
-DOB: 01/01/1990
-ID: E001
-Type: Full-Time
-Salary: 5300
-
-Name: Bob
-DOB: 02/02/1995
-ID: E002
-Type: Part-Time
-Salary: 1600
+for (Employee e : employees) {
+    System.out.println(e.name + " - " + e.getType() + " - " + e.calcSalary());
+}
 ```
 
 ---
 
-# Ý nghĩa thiết kế
+# Ví dụ
 
-Hệ thống đạt được các nguyên tắc OOP quan trọng:
+## Input
+
+```
+3
+F "Nguyễn Văn A" 1500 200 50
+P "Trần Thị B" 80 10
+F "Lê Văn C" 1400 100 50
+```
+
+---
+
+## Output
+
+```
+Nguyễn Văn A - Full-Time - 1650.0
+Trần Thị B - Part-Time - 800.0
+Lê Văn C - Full-Time - 1450.0
+```
+
+---
+
+# Ý nghĩa bài học
+
+Bài này minh họa rõ các nguyên tắc OOP quan trọng.
 
 ### Abstraction
 
-Sử dụng `abstract class Employee`.
+```
+abstract class Employee
+```
 
 ---
 
@@ -244,28 +298,28 @@ PartTimeEmployee extends Employee
 Cùng một lời gọi:
 
 ```
-emp.calcSalary()
+calcSalary()
 ```
 
 nhưng thực hiện logic khác nhau.
 
 ---
 
-### Encapsulation
+### Data parsing
 
-Thông tin của mỗi loại nhân viên được quản lý riêng trong từng class.
+Xử lý chuỗi input có dấu `" "`.
 
 ---
 
-# Ưu điểm của thiết kế
+# Ưu điểm thiết kế
 
-Hệ thống dễ mở rộng.
+Hệ thống rất dễ mở rộng.
 
-Ví dụ nếu thêm:
+Nếu thêm:
 
 ```
 ContractEmployee
-InternEmployee
+Intern
 Freelancer
 ```
 
@@ -273,15 +327,14 @@ chỉ cần:
 
 ```
 extends Employee
+override calcSalary()
 ```
 
-mà **không cần sửa code cũ**.
-
-Đây là nguyên tắc **Open/Closed Principle** trong OOP.
+không cần sửa code cũ.
 
 ---
 
-## 2. Cách chạy chương trình
+## 3. Cách chạy chương trình
 
 1. **Cấp quyền thực thi cho script:**
    ```bash

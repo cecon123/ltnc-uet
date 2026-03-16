@@ -11,11 +11,15 @@ public abstract class Robot {
         this.batteryLevel = 100;
     }
 
-    public void chargeBattery() {
-        this.batteryLevel = 100;
+    public String getModelName() {
+        return modelName;
     }
 
-    public void showIdentity() {
+    public void chargeBattery() {
+        batteryLevel = 100;
+    }
+
+    public final void showIdentity() {
         System.out.println("Robot ID: " + id + ", Model: " + modelName);
     }
 

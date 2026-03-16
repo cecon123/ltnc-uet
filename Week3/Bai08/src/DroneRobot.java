@@ -1,3 +1,4 @@
+
 public class DroneRobot extends Robot implements Flyable, GPS {
 
     public DroneRobot(int id, String modelName) {
@@ -6,16 +7,16 @@ public class DroneRobot extends Robot implements Flyable, GPS {
 
     @Override
     public void performMainTask() {
-        System.out.println("Drone is performing aerial surveillance.");
+        System.out.println(getModelName() + " performing main task");
     }
 
     @Override
     public void fly() {
-        System.out.println("Drone is flying.");
+        System.out.println(getModelName() + " flying");
     }
 
     @Override
     public void getCoordinates() {
-        System.out.println("Drone GPS coordinates acquired.");
+        System.out.println(getModelName() + " getting coordinates");
     }
 }

@@ -7,21 +7,21 @@ public class AmphibiousRobot extends Robot implements Flyable, Swimmable, GPS {
 
     @Override
     public void performMainTask() {
-        System.out.println("Amphibious robot performing multi-terrain mission.");
+        System.out.println(getModelName() + " performing main task");
     }
 
     @Override
     public void fly() {
-        System.out.println("Amphibious robot flying.");
+        System.out.println(getModelName() + " flying");
     }
 
     @Override
     public void swim() {
-        System.out.println("Amphibious robot swimming.");
+        System.out.println(getModelName() + " swimming");
     }
 
     @Override
     public void getCoordinates() {
-        System.out.println("Amphibious robot GPS active.");
+        System.out.println(getModelName() + " getting coordinates");
     }
 }

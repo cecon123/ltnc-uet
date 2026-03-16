@@ -1,19 +1,46 @@
 
+import java.util.Scanner;
+
 public class Main {
-
     public static void main(String[] args) {
+        try (Scanner sc = new Scanner(System.in)) {
+            int n = sc.nextInt();
+            IPayable[] payableList = new IPayable[n];
 
-        IPayable[] payableList = new IPayable[3];
+            for (int i = 0; i < n; i++) {
+                String type = sc.next();
+                switch (type) {
+                    case "S" -> {
+                        String id = sc.next();
+                        String name = sc.next();
+                        int hours = sc.nextInt();
+                        double rate = sc.nextDouble();
 
-        payableList[0] = new PartTimeStaff("S01", "Alice", 80, 10);
-        payableList[1] = new PartTimeStaff("S02", "Bob", 100, 12);
-        payableList[2] = new Invoice("Laptop", 2, 900);
-        double total = 0;
+                        payableList[i] = new PartTimeStaff(id, name, hours, rate);
+                    }
+                    case "I" -> {
+                        String item = sc.next();
+                        int quantity = sc.nextInt();
+                        double price = sc.nextDouble();
 
-        for (IPayable p : payableList) {
-            total += p.getPaymentAmount();
+                        payableList[i] = new Invoice(item, quantity, price);
+                    }
+                }
+            }
+
+            double total = 0;
+
+            for (IPayable p : payableList) {
+                double payment = p.getPaymentAmount();
+                total += payment;
+                if (p instanceof PartTimeStaff s) {
+                    System.out.println("PartTimeStaff " + s.getName() + " - Payment: " + payment);
+                }
+                if (p instanceof Invoice i) {
+                    System.out.println("Invoice " + i.getItemName() + " - Payment: " + payment);
+                }
+            }
+            System.out.println("Total Payment = " + total);
         }
-        System.out.println("Total payment this month: $" + total);
     }
-
 }

@@ -1,26 +1,25 @@
-# Bài 8 – Abstract Class & Interface (Robot Factory)
+# Bài 8 – Abstract Class and Interface (Robot Factory)
 
 ## 1. Tóm tắt ý tưởng chính của lời giải
 
-Bài toán mô phỏng hệ thống robot trong một nhà máy sản xuất.  
-
-Các robot có **cấu trúc cơ bản giống nhau**, nhưng **kỹ năng khác nhau** như:
+Bài toán mô phỏng hệ thống robot trong nhà máy sản xuất.  
+Các robot có **cấu trúc cơ bản giống nhau**, nhưng lại có **kỹ năng (behavior) khác nhau** như:
 
 - Bay
 - Bơi
 - Định vị GPS
 
-Để thiết kế hệ thống linh hoạt, chương trình sử dụng:
+Để thiết kế hệ thống linh hoạt và dễ mở rộng, chương trình sử dụng:
 
 - **Abstract Class** để định nghĩa cấu trúc chung của robot
-- **Interface** để định nghĩa các kỹ năng (behaviors)
-- **Inheritance + Polymorphism** để triển khai các loại robot khác nhau
+- **Interface** để mô tả các kỹ năng
+- **Inheritance và Polymorphism** để xử lý nhiều loại robot khác nhau
 
 ---
 
 # Thiết kế lớp Robot
 
-Lớp `Robot` là **abstract class** chứa các thuộc tính chung. :contentReference[oaicite:8]{index=8}
+Lớp `Robot` là **abstract class** chứa thông tin chung của mọi robot. :contentReference[oaicite:8]{index=8}
 
 ```java
 public abstract class Robot {
@@ -35,11 +34,15 @@ public abstract class Robot {
         this.batteryLevel = 100;
     }
 
-    public void chargeBattery() {
-        this.batteryLevel = 100;
+    public String getModelName() {
+        return modelName;
     }
 
-    public void showIdentity() {
+    public void chargeBattery() {
+        batteryLevel = 100;
+    }
+
+    public final void showIdentity() {
         System.out.println("Robot ID: " + id + ", Model: " + modelName);
     }
 
@@ -57,15 +60,25 @@ batteryLevel
 
 ### Phương thức
 
-- `chargeBattery()` → sạc pin lên 100%
-- `showIdentity()` → hiển thị danh tính robot
-- `performMainTask()` → nhiệm vụ chính (abstract)
+| Method | Ý nghĩa |
+|------|------|
+chargeBattery() | Sạc pin robot lên 100% |
+showIdentity() | Hiển thị thông tin robot (không cho override) |
+performMainTask() | Nhiệm vụ chính của robot |
+
+`showIdentity()` được khai báo **final** để đảm bảo lớp con không thay đổi hành vi này.
 
 ---
 
-# Thiết kế các Interface (Kỹ năng)
+# Thiết kế các Interface
+
+Các interface mô tả **kỹ năng của robot**.
+
+---
 
 ## Flyable
+
+:contentReference[oaicite:9]{index=9}
 
 ```java
 public interface Flyable {
@@ -79,6 +92,8 @@ Robot có thể bay.
 
 ## Swimmable
 
+:contentReference[oaicite:10]{index=10}
+
 ```java
 public interface Swimmable {
     void swim();
@@ -91,13 +106,15 @@ Robot có thể bơi.
 
 ## GPS
 
+:contentReference[oaicite:11]{index=11}
+
 ```java
 public interface GPS {
     void getCoordinates();
 }
 ```
 
-Robot có khả năng định vị.
+Robot có thể xác định vị trí.
 
 ---
 
@@ -105,7 +122,7 @@ Robot có khả năng định vị.
 
 ## DroneRobot
 
-Robot bay và có GPS. :contentReference[oaicite:9]{index=9}
+Robot bay và có GPS. :contentReference[oaicite:12]{index=12}
 
 ```java
 public class DroneRobot extends Robot implements Flyable, GPS
@@ -113,14 +130,16 @@ public class DroneRobot extends Robot implements Flyable, GPS
 
 Kỹ năng:
 
-- bay
-- định vị
+```
+Flyable
+GPS
+```
 
 ---
 
 ## FishRobot
 
-Robot hoạt động dưới nước. :contentReference[oaicite:10]{index=10}
+Robot hoạt động dưới nước. :contentReference[oaicite:13]{index=13}
 
 ```java
 public class FishRobot extends Robot implements Swimmable
@@ -128,13 +147,15 @@ public class FishRobot extends Robot implements Swimmable
 
 Kỹ năng:
 
-- bơi
+```
+Swimmable
+```
 
 ---
 
 ## AmphibiousRobot
 
-Robot đa địa hình. :contentReference[oaicite:11]{index=11}
+Robot đa địa hình. :contentReference[oaicite:14]{index=14}
 
 ```java
 public class AmphibiousRobot extends Robot
@@ -143,9 +164,11 @@ public class AmphibiousRobot extends Robot
 
 Kỹ năng:
 
-- bay
-- bơi
-- định vị
+```
+Flyable
+Swimmable
+GPS
+```
 
 ---
 
@@ -199,15 +222,49 @@ GPS <|.. AmphibiousRobot
 
 ---
 
-# Áp dụng Polymorphism
+# Xử lý Input
 
-Trong `main`, tạo danh sách robot. :contentReference[oaicite:12]{index=12}
+Chương trình đọc dữ liệu từ bàn phím.
+
+Ví dụ:
+
+```
+3
+DR 1 Drone-X
+FR 2 Fish-A
+AR 3 Amphibious-Z
+```
+
+### Ý nghĩa
+
+| Code | Robot Type |
+|----|----|
+DR | DroneRobot |
+FR | FishRobot |
+AR | AmphibiousRobot |
+
+---
+
+# Tạo Robot tương ứng
+
+Trong `main`, chương trình tạo robot theo loại. :contentReference[oaicite:15]{index=15}
 
 ```java
-List<Robot> robots = new ArrayList<>();
-robots.add(new DroneRobot(1, "SkyEyeY"));
-robots.add(new FishRobot(2, "AquaBotX"));
-robots.add(new AmphibiousRobot(3, "AmphiX"));
+switch (type) {
+    case "DR" -> robots.add(new DroneRobot(id, model));
+    case "FR" -> robots.add(new FishRobot(id, model));
+    case "AR" -> robots.add(new AmphibiousRobot(id, model));
+}
+```
+
+---
+
+# Áp dụng Polymorphism
+
+Danh sách robot được lưu trong:
+
+```
+List<Robot> robots
 ```
 
 Duyệt danh sách:
@@ -224,48 +281,65 @@ Java sẽ tự động gọi đúng phương thức của từng loại robot.
 
 # Downcasting và instanceof
 
-Ví dụ lấy robot đầu tiên:
-
-```
-Robot r1 = robots.get(0);
-```
-
-Kiểm tra nếu robot có khả năng bay:
+Để robot thực hiện các kỹ năng riêng:
 
 ```java
-if (r1 instanceof Flyable) {
-    Flyable f = (Flyable) r1;
+if (r instanceof Flyable f) {
     f.fly();
+}
+
+if (r instanceof Swimmable s) {
+    s.swim();
+}
+
+if (r instanceof GPS g) {
+    g.getCoordinates();
 }
 ```
 
 Ý nghĩa:
 
-- `instanceof` kiểm tra kỹ năng robot
-- Downcasting cho phép sử dụng các phương thức đặc biệt của interface
+```
+instanceof → kiểm tra robot có kỹ năng đó hay không
+Downcasting → gọi phương thức của interface
+```
 
 ---
 
-# Ví dụ kết quả
+# Ví dụ
+
+## Input
 
 ```
-Drone is performing aerial surveillance.
-Fish robot exploring underwater.
-Amphibious robot performing multi-terrain mission.
+3
+DR 1 Drone-X
+FR 2 Fish-A
+AR 3 Amphibious-Z
+```
 
-Drone is flying.
-Drone GPS coordinates acquired.
+---
 
-Fish robot swimming.
+## Output
 
-Amphibious robot flying.
+```
+Drone-X performing main task
+Drone-X flying
+Drone-X getting coordinates
+
+Fish-A performing main task
+Fish-A swimming
+
+Amphibious-Z performing main task
+Amphibious-Z flying
+Amphibious-Z swimming
+Amphibious-Z getting coordinates
 ```
 
 ---
 
 # Phần mở rộng
 
-## Java có cho phép kế thừa nhiều lớp không?
+## Java có cho phép kế thừa 2 lớp không?
 
 Ví dụ:
 
@@ -298,7 +372,7 @@ class DroneRobot extends Robot
         implements Flyable, GPS, ElectronicDevice
 ```
 
-Java cho phép một class:
+Java cho phép:
 
 ```
 extends 1 class
@@ -309,39 +383,33 @@ implements nhiều interface
 
 # Ý nghĩa bài học
 
-Bài này giúp hiểu rõ các khái niệm quan trọng của OOP:
+Bài này minh họa nhiều nguyên tắc OOP quan trọng.
 
-### Abstract Class
+### Abstraction
 
-Dùng để định nghĩa cấu trúc chung.
-
----
-
-### Interface
-
-Dùng để mô tả **kỹ năng / behavior**.
+Sử dụng abstract class để định nghĩa cấu trúc robot.
 
 ---
 
-### Multiple Interface Implementation
+### Interface-based design
 
-Một robot có thể có nhiều kỹ năng.
+Robot có thể sở hữu nhiều kỹ năng.
 
 ---
 
 ### Polymorphism
 
-Một danh sách `Robot` có thể chứa nhiều loại robot khác nhau.
+Danh sách Robot có thể chứa nhiều loại robot khác nhau.
 
 ---
 
 ### Downcasting + instanceof
 
-Cho phép kiểm tra và sử dụng kỹ năng đặc biệt của robot.
+Cho phép sử dụng các kỹ năng riêng của robot một cách an toàn.
 
 ---
 
-## 2. Cách chạy chương trình
+## 3. Cách chạy chương trình
 
 1. **Cấp quyền thực thi cho script:**
    ```bash

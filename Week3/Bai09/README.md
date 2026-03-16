@@ -1,19 +1,19 @@
-# Bài 9 – Tính tổng chi phí (Payment System)
+# Bài 9 – Tính tổng chi phí
 
 ## 1. Tóm tắt ý tưởng chính của lời giải
 
-Bài toán yêu cầu tính **tổng số tiền công ty phải chi trả trong tháng**, bao gồm:
+Bài toán yêu cầu tính **tổng số tiền mà công ty phải chi trả trong tháng**, bao gồm:
 
-- Tiền lương nhân viên
-- Tiền thanh toán hóa đơn
+- Tiền lương nhân viên Part-time
+- Tiền thanh toán hóa đơn (Invoice)
 
 Hai loại đối tượng này **không có quan hệ kế thừa trực tiếp**, nhưng đều có điểm chung:
 
 ```
-đều cần tính số tiền phải thanh toán
+đều có thể tính số tiền cần thanh toán
 ```
 
-Vì vậy chương trình sử dụng **Interface `IPayable`** để gom tất cả các đối tượng có thể thanh toán vào cùng một hệ thống.
+Vì vậy chương trình sử dụng **Interface `IPayable`** để gom tất cả các đối tượng có thể thanh toán vào cùng một danh sách.
 
 Các nguyên tắc OOP áp dụng:
 
@@ -74,7 +74,7 @@ name
 
 # Lớp PartTimeStaff
 
-Đại diện cho nhân viên bán thời gian. :contentReference[oaicite:7]{index=7}
+Đại diện cho nhân viên làm việc bán thời gian. :contentReference[oaicite:7]{index=7}
 
 ### Thuộc tính
 
@@ -83,7 +83,7 @@ workingHours
 hourlyRate
 ```
 
-### Công thức tính lương
+### Công thức lương
 
 ```
 salary = workingHours * hourlyRate
@@ -123,7 +123,7 @@ pricePerItem
 ### Công thức
 
 ```
-total = quantity * pricePerItem
+payment = quantity * pricePerItem
 ```
 
 ### Implementation
@@ -171,12 +171,62 @@ IPayable <|.. Invoice
 
 ---
 
+# Xử lý Input
+
+Chương trình đọc dữ liệu từ bàn phím.
+
+Ví dụ:
+
+```
+3
+S PT01 NguyenVanA 40 10
+I Laptop 2 500
+S PT02 TranThiB 20 12
+```
+
+### Ý nghĩa
+
+| Code | Object |
+|-----|------|
+S | PartTimeStaff |
+I | Invoice |
+
+---
+
+### PartTimeStaff format
+
+```
+S [id] [name] [workingHours] [hourlyRate]
+```
+
+Ví dụ:
+
+```
+S PT01 NguyenVanA 40 10
+```
+
+---
+
+### Invoice format
+
+```
+I [itemName] [quantity] [pricePerItem]
+```
+
+Ví dụ:
+
+```
+I Laptop 2 500
+```
+
+---
+
 # Áp dụng Polymorphism
 
-Trong chương trình:
+Danh sách thanh toán được lưu trong:
 
-```java
-IPayable[] payableList = new IPayable[3];
+```
+IPayable[] payableList
 ```
 
 Danh sách này có thể chứa:
@@ -186,60 +236,56 @@ PartTimeStaff
 Invoice
 ```
 
-Mặc dù hai class này **không cùng hệ kế thừa**, nhưng đều implement `IPayable`.
+Khi gọi:
+
+```
+p.getPaymentAmount()
+```
+
+Java sẽ tự động gọi đúng phương thức của từng object.
 
 ---
 
-# Thực hành trong main
+# In kết quả
 
 ```java
-payableList[0] = new PartTimeStaff("S01", "Alice", 80, 10);
-payableList[1] = new PartTimeStaff("S02", "Bob", 100, 12);
-payableList[2] = new Invoice("Laptop", 2, 900);
-```
-
-Tính tổng chi phí:
-
-```java
-double total = 0;
-
 for (IPayable p : payableList) {
-    total += p.getPaymentAmount();
+
+    double payment = p.getPaymentAmount();
+    total += payment;
+
+    if (p instanceof PartTimeStaff s) {
+        System.out.println("PartTimeStaff " + s.getName() + " - Payment: " + payment);
+    }
+
+    if (p instanceof Invoice i) {
+        System.out.println("Invoice " + i.getItemName() + " - Payment: " + payment);
+    }
 }
 ```
 
 ---
 
-# Ví dụ kết quả
+# Ví dụ
 
-### Nhân viên Alice
-
-```
-80 × 10 = 800
-```
-
-### Nhân viên Bob
+## Input
 
 ```
-100 × 12 = 1200
+3
+S PT01 NguyenVanA 40 10
+I Laptop 2 500
+S PT02 TranThiB 20 12
 ```
 
-### Hóa đơn Laptop
+---
+
+## Output
 
 ```
-2 × 900 = 1800
-```
-
-### Tổng chi phí
-
-```
-800 + 1200 + 1800 = 3800
-```
-
-Output:
-
-```
-Total payment this month: $3800
+PartTimeStaff NguyenVanA - Payment: 400.0
+Invoice Laptop - Payment: 1000.0
+PartTimeStaff TranThiB - Payment: 240.0
+Total Payment = 1640.0
 ```
 
 ---
@@ -287,7 +333,7 @@ không cần sửa code cũ.
 
 ---
 
-## 2. Cách chạy chương trình
+## 3. Cách chạy chương trình
 
 1. **Cấp quyền thực thi cho script:**
    ```bash

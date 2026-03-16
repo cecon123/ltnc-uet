@@ -7,12 +7,11 @@ public class FishRobot extends Robot implements Swimmable {
 
     @Override
     public void performMainTask() {
-        System.out.println("Fish robot exploring underwater.");
+        System.out.println(getModelName() + " performing main task");
     }
 
     @Override
     public void swim() {
-        System.out.println("Fish robot swimming.");
+        System.out.println(getModelName() + " swimming");
     }
-
 }

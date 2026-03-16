@@ -2,15 +2,15 @@
 
 ## 1. Tóm tắt ý tưởng chính của lời giải
 
-Bài toán mô phỏng hệ thống quản lý nhân sự và tính thưởng cuối năm cho nhân viên trong công ty phần mềm.
+Bài toán xây dựng hệ thống tính **thưởng cuối năm cho nhân viên trong công ty phần mềm**.
 
 Có 3 loại nhân viên:
 
-1. **Employee (Nhân viên thường)**
-2. **Developer (Lập trình viên)**
-3. **Tester (Kiểm thử viên)**
+1. **Employee (nhân viên thường)**
+2. **Developer**
+3. **Tester**
 
-Mỗi loại nhân viên có **cách tính thưởng khác nhau**, vì vậy hệ thống được thiết kế bằng:
+Mỗi loại có **cách tính thưởng khác nhau**, vì vậy hệ thống được thiết kế bằng:
 
 - Inheritance
 - Method Overriding
@@ -138,20 +138,80 @@ Employee <|-- Tester
 
 ---
 
+# Xử lý Input
+
+Chương trình đọc số lượng nhân viên:
+
+```
+n
+```
+
+Sau đó đọc từng dòng dữ liệu.
+
+Ví dụ:
+
+```
+D TranThiB 12000000 10
+```
+
+### Ý nghĩa
+
+```
+D → Developer
+TranThiB → name
+12000000 → baseSalary
+10 → overtimeHours
+```
+
+---
+
+Ví dụ:
+
+```
+T LeVanC 9000000 20
+```
+
+### Ý nghĩa
+
+```
+T → Tester
+LeVanC → name
+9000000 → baseSalary
+20 → bugsFound
+```
+
+---
+
+Ví dụ:
+
+```
+E NguyenVanA 10000000
+```
+
+### Ý nghĩa
+
+```
+E → Employee thường
+NguyenVanA → name
+10000000 → baseSalary
+```
+
+---
+
 # Áp dụng Polymorphism
 
-Trong chương trình:
-
-```java
-ArrayList<Employee> employees = new ArrayList<>();
-```
-
-Danh sách này có thể chứa nhiều loại nhân viên:
+Danh sách nhân viên được lưu trong:
 
 ```
+ArrayList<Employee>
+```
+
+Danh sách này có thể chứa:
+
+```
+Employee
 Developer
 Tester
-Employee
 ```
 
 Khi gọi:
@@ -161,28 +221,6 @@ e.calculateBonus()
 ```
 
 Java sẽ tự động gọi đúng phương thức của object thực tế.
-
----
-
-# Thực hành trong main
-
-Danh sách nhân viên được tạo như sau: :contentReference[oaicite:7]{index=7}
-
-```java
-employees.add(new Developer("Alice", 20000000, 10));
-employees.add(new Developer("Bob", 18000000, 5));
-employees.add(new Tester("Charlie", 15000000, 20));
-employees.add(new Tester("David", 14000000, 15));
-employees.add(new Employee("Eve", 16000000));
-```
-
-Sau đó duyệt danh sách:
-
-```java
-for (Employee e : employees) {
-    System.out.println(e.name + " bonus: " + e.calculateBonus());
-}
-```
 
 ---
 
@@ -215,34 +253,40 @@ if (e instanceof Tester) {
 
 ---
 
-# Ví dụ kết quả chương trình
+# Ví dụ
+
+## Input
 
 ```
-Alice bonus: 4000000.0
+5
+E NguyenVanA 10000000
+D TranThiB 12000000 10
+T LeVanC 9000000 20
+D PhamVanD 15000000 5
+T HoangThiE 8000000 10
+```
+
+---
+
+## Output
+
+```
+NguyenVanA - Bonus: 1000000.0
+TranThiB - Bonus: 3200000.0
 Tặng khóa học AWS
--------------------
-
-Bob bonus: 2800000.0
+LeVanC - Bonus: 1900000.0
+Tặng tool Test
+PhamVanD - Bonus: 2500000.0
 Tặng khóa học AWS
--------------------
-
-Charlie bonus: 2500000.0
+HoangThiE - Bonus: 1300000.0
 Tặng tool Test
--------------------
-
-David bonus: 2150000.0
-Tặng tool Test
--------------------
-
-Eve bonus: 1600000.0
--------------------
 ```
 
 ---
 
 # Ý nghĩa bài học
 
-Bài này minh họa nhiều khái niệm OOP quan trọng:
+Bài này minh họa nhiều nguyên tắc OOP quan trọng.
 
 ### Inheritance
 
@@ -291,6 +335,7 @@ Nếu sau này thêm:
 Manager
 Designer
 DevOps
+Intern
 ```
 
 chỉ cần:
@@ -304,7 +349,7 @@ không cần sửa code cũ.
 
 ---
 
-## 2. Cách chạy chương trình
+## 3. Cách chạy chương trình
 
 1. **Cấp quyền thực thi cho script:**
    ```bash

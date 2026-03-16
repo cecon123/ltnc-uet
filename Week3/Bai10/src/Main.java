@@ -1,32 +1,43 @@
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Main {
-
     public static void main(String[] args) {
+        try (Scanner sc = new Scanner(System.in)) {
+            int n = sc.nextInt();
+            ArrayList<Employee> employees = new ArrayList<>();
 
-        ArrayList<Employee> employees = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                String type = sc.next();
+                String name = sc.next();
+                double salary = sc.nextDouble();
 
-        employees.add(new Developer("Alice", 20000000, 10));
-        employees.add(new Developer("Bob", 18000000, 5));
-        employees.add(new Tester("Charlie", 15000000, 20));
-        employees.add(new Tester("David", 14000000, 15));
-        employees.add(new Employee("Eve", 16000000));
-
-        for (Employee e : employees) {
-
-            System.out.println(e.name + " bonus: " + e.calculateBonus());
-
-            if (e instanceof Developer) {
-                System.out.println("Tặng khóa học AWS");
+                switch (type) {
+                    case "E" ->
+                        employees.add(new Employee(name, salary));
+                    case "D" -> {
+                        int overtime = sc.nextInt();
+                        employees.add(new Developer(name, salary, overtime));
+                    }
+                    case "T" -> {
+                        int bugs = sc.nextInt();
+                        employees.add(new Tester(name, salary, bugs));
+                    }
+                }
             }
 
-            if (e instanceof Tester) {
-                System.out.println("Tặng tool Test");
-            }
+            for (Employee e : employees) {
+                double bonus = e.calculateBonus();
+                System.out.println(e.name + " - Bonus: " + bonus);
 
-            System.out.println("-------------------");
+                if (e instanceof Developer) {
+                    System.out.println("Tặng khóa học AWS");
+                }
+
+                if (e instanceof Tester) {
+                    System.out.println("Tặng tool Test");
+                }
+            }
         }
     }
-
 }

@@ -1,32 +1,29 @@
-# Bài 6 – Cửa hàng trực tuyến (Online Store)
+# Bài 6 – Cửa hàng trực tuyến
 
 ## 1. Tóm tắt ý tưởng chính của lời giải
 
-Bài toán xây dựng module tính tiền cho một đơn hàng chứa nhiều loại sản phẩm khác nhau.
+Bài toán xây dựng hệ thống tính tiền cho đơn hàng chứa nhiều loại sản phẩm khác nhau.
 
 Có hai loại sản phẩm:
 
-1. **Electronics (điện tử)**  
-   - Giá bán = giá gốc + 10% VAT + phí bảo hành
+1. **Electronics**
+2. **Food**
 
-2. **Food (thực phẩm)**  
-   - Không có thuế
-   - Nếu sản phẩm sắp hết hạn (còn dưới 7 ngày) → giảm giá 20%
+Mỗi loại có **quy tắc tính giá khác nhau**, do đó chương trình được thiết kế bằng:
 
-Hệ thống được thiết kế bằng các nguyên tắc OOP:
+- **Abstract Class**
+- **Inheritance**
+- **Polymorphism**
 
-- Abstraction
-- Inheritance
-- Polymorphism
-- Encapsulation
+Nhờ đó hệ thống có thể xử lý nhiều loại sản phẩm trong cùng một danh sách.
 
 ---
 
-# Thiết kế lớp
+# Phân tích thiết kế
 
 ## Lớp trừu tượng Product
 
-Lớp cha chứa các thông tin chung của mọi sản phẩm. :contentReference[oaicite:5]{index=5}
+Lớp `Product` chứa thông tin chung của mọi sản phẩm. :contentReference[oaicite:5]{index=5}
 
 ```java
 public abstract class Product {
@@ -47,9 +44,11 @@ public abstract class Product {
 
 ### Thuộc tính chung
 
-- `id` : mã sản phẩm
-- `name` : tên sản phẩm
-- `price` : giá gốc
+```
+id
+name
+price
+```
 
 ### Phương thức
 
@@ -57,15 +56,15 @@ public abstract class Product {
 getFinalPrice()
 ```
 
-→ được override trong các lớp con để tính giá cuối cùng.
+Phương thức này được **override** trong các lớp con.
 
 ---
 
 # Lớp Electronics
 
-Lớp đại diện cho sản phẩm điện tử. :contentReference[oaicite:6]{index=6}
+Đại diện cho sản phẩm điện tử. :contentReference[oaicite:6]{index=6}
 
-### Thuộc tính riêng
+### Thuộc tính
 
 ```
 warrantyFee
@@ -77,8 +76,11 @@ warrantyFee
 Final Price = price * 1.1 + warrantyFee
 ```
 
-- 10% VAT
-- cộng phí bảo hành
+Trong đó:
+
+```
+10% VAT
+```
 
 ### Implementation
 
@@ -93,17 +95,17 @@ public double getFinalPrice() {
 
 # Lớp Food
 
-Lớp đại diện cho thực phẩm. :contentReference[oaicite:7]{index=7}
+Đại diện cho sản phẩm thực phẩm. :contentReference[oaicite:7]{index=7}
 
-### Thuộc tính riêng
+### Thuộc tính
 
 ```
-LocalDate expiryDate
+expiryDate (LocalDate)
 ```
 
 ### Logic tính giá
 
-- Nếu còn **< 7 ngày hết hạn** → giảm 20%
+- Nếu sản phẩm **còn dưới 7 ngày hết hạn** → giảm giá **20%**
 - Nếu không → giữ nguyên giá
 
 ### Implementation
@@ -115,48 +117,6 @@ if (expiryDate.minusDays(7).isBefore(today)) {
     return price * 0.8;
 }
 ```
-
-Sử dụng thư viện:
-
-```
-java.time.LocalDate
-```
-
-để xử lý ngày tháng.
-
----
-
-# Lớp Order
-
-Lớp quản lý danh sách sản phẩm trong đơn hàng. :contentReference[oaicite:8]{index=8}
-
-```java
-private List<Product> products = new ArrayList<>();
-```
-
-Sử dụng **List<Product>** để chứa nhiều loại sản phẩm khác nhau.
-
-### Thêm sản phẩm
-
-```java
-public void addProduct(Product product) {
-    products.add(product);
-}
-```
-
-### Tính tổng tiền
-
-```java
-public double getTotalPrice() {
-    double total = 0;
-    for (Product product : products) {
-        total += product.getFinalPrice();
-    }
-    return total;
-}
-```
-
-Nhờ **polymorphism**, mỗi loại sản phẩm sẽ tự tính giá theo logic riêng.
 
 ---
 
@@ -175,36 +135,91 @@ class Product {
 
 class Electronics {
     -warrantyFee : double
-    +getFinalPrice()
 }
 
 class Food {
     -expiryDate : LocalDate
-    +getFinalPrice()
-}
-
-class Order {
-    -products : List<Product>
-    +addProduct(Product)
-    +getTotalPrice() double
 }
 
 Product <|-- Electronics
 Product <|-- Food
-Order --> Product
+```
+
+---
+
+# Xử lý Input
+
+Chương trình đọc số lượng sản phẩm:
+
+```
+n
+```
+
+Sau đó đọc từng dòng dữ liệu.
+
+Ví dụ:
+
+```
+E "Laptop" 1000 50
+```
+
+### Ý nghĩa
+
+```
+E → Electronics
+Laptop → name
+1000 → price
+50 → warrantyFee
+```
+
+---
+
+Ví dụ:
+
+```
+F "Milk" 30 2025-03-15
+```
+
+### Ý nghĩa
+
+```
+F → Food
+Milk → name
+30 → price
+2025-03-15 → expiryDate
+```
+
+---
+
+# Phân tích cách parse dữ liệu
+
+Tên sản phẩm nằm trong dấu `" "`.
+
+Chương trình tìm vị trí dấu ngoặc kép:
+
+```java
+int firstQuote = line.indexOf("\"");
+int secondQuote = line.indexOf("\"", firstQuote + 1);
+```
+
+Sau đó tách phần dữ liệu phía sau:
+
+```java
+String remain = line.substring(secondQuote + 2);
+String[] parts = remain.split(" ");
 ```
 
 ---
 
 # Áp dụng Polymorphism
 
-Trong `Order`:
+Tất cả sản phẩm được lưu trong mảng:
 
 ```
-List<Product>
+Product[] products
 ```
 
-có thể chứa:
+Mỗi phần tử có thể là:
 
 ```
 Electronics
@@ -214,60 +229,56 @@ Food
 Khi gọi:
 
 ```
-product.getFinalPrice()
+p.getFinalPrice()
 ```
 
-Java sẽ tự động gọi đúng phương thức của object thực tế.
+Java sẽ tự động gọi phương thức đúng của từng object.
 
-Ví dụ:
+---
 
-```
-Electronics → tính VAT
-Food → kiểm tra hạn sử dụng
+# In kết quả
+
+```java
+for (Product p : products) {
+    double finalPrice = p.getFinalPrice();
+    total += finalPrice;
+
+    String typeName =
+        (p instanceof Electronics) ? "Electronics" : "Food";
+
+    System.out.println(p.name + " - " + typeName + " - " + finalPrice);
+}
 ```
 
 ---
 
-# Thực hành trong main
+# Ví dụ
 
-Tạo đơn hàng và thêm sản phẩm. :contentReference[oaicite:9]{index=9}
+## Input
 
-```java
-Order order = new Order();
-
-Product laptop = new Electronics("E001", "Laptop", 1000, 100);
-Product phone = new Electronics("E002", "Phone", 500, 50);
-Product bread = new Food("F001", "Bread", 2, LocalDate.now().plusDays(5));
-Product milk = new Food("F002", "Milk", 3, LocalDate.now().plusDays(10));
-
-order.addProduct(laptop);
-order.addProduct(phone);
-order.addProduct(bread);
-order.addProduct(milk);
 ```
-
-Sau đó tính tổng tiền:
-
-```java
-System.out.println("Total Price: $" + order.getTotalPrice());
+3
+E "Laptop" 1000 50
+F "Milk" 30 2025-03-15
+F "Bread" 20 2025-03-05
 ```
 
 ---
 
-# Ví dụ tính toán
+## Output
 
-| Product | Price | Logic | Final |
-|-------|------|------|------|
-Laptop | 1000 | +10% VAT + 100 warranty | 1200 |
-Phone | 500 | +10% VAT + 50 warranty | 600 |
-Bread | 2 | giảm 20% | 1.6 |
-Milk | 3 | không giảm | 3 |
+```
+Laptop - Electronics - 1150.0
+Milk - Food - 30.0
+Bread - Food - 16.0
+Total = 1196.0
+```
 
 ---
 
 # Ý nghĩa bài học
 
-Bài này giúp hiểu rõ cách thiết kế hệ thống thực tế bằng OOP.
+Bài này minh họa rõ các nguyên tắc OOP quan trọng.
 
 ### Abstraction
 
@@ -288,43 +299,46 @@ Food extends Product
 
 ### Polymorphism
 
+Cùng một lời gọi:
+
 ```
-product.getFinalPrice()
+getFinalPrice()
 ```
 
-mỗi loại sản phẩm tính khác nhau.
+nhưng mỗi loại sản phẩm tính giá khác nhau.
 
 ---
 
-### Encapsulation
+### Data Parsing
 
-Mỗi loại sản phẩm quản lý logic riêng.
+Xử lý chuỗi input có dấu `" "`.
 
 ---
 
 # Ưu điểm thiết kế
 
-Hệ thống rất dễ mở rộng.
+Hệ thống dễ mở rộng.
 
-Ví dụ thêm:
+Ví dụ nếu thêm:
 
 ```
-Book
 Clothing
 Furniture
+Book
 ```
 
 chỉ cần:
 
 ```
 extends Product
+override getFinalPrice()
 ```
 
 không cần sửa code cũ.
 
 ---
 
-## 2. Cách chạy chương trình
+## 3. Cách chạy chương trình
 
 1. **Cấp quyền thực thi cho script:**
    ```bash
