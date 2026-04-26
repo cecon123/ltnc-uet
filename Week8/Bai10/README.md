@@ -1,192 +1,295 @@
-# Bài 3: The buggy trap
+# Bài 4: The bank account tester
 
 ## 1. Tóm tắt ý tưởng chính của lời giải
 
-Bài toán yêu cầu kiểm thử và sửa lỗi hàm:
+Bài toán yêu cầu kiểm thử class `BankAccount` bằng JUnit.
+
+Class `BankAccount` mô phỏng một tài khoản ngân hàng đơn giản, gồm các chức năng chính:
+
+- Tạo tài khoản với số dư mặc định là `0.0`.
+- Tạo tài khoản với số dư ban đầu.
+- Nạp tiền bằng `deposit(double amount)`.
+- Rút tiền bằng `withdraw(double amount)`.
+- Xem số dư bằng `getBalance()`.
+- Xem số tài khoản bằng `getAccountNumber()`.
+
+Trọng tâm bài kiểm thử là hai phương thức:
 
 ```java
-classifyGrade(double gpa)
+deposit(double amount)
 ```
 
-trong class `GradeClassifier`.
-
-Hàm này dùng để phân loại học lực dựa trên điểm GPA theo thang điểm 10.
-
-Theo JavaDoc, quy tắc phân loại đúng là:
-
-| Khoảng GPA | Kết quả |
-|---|---|
-| `[0.0, 5.0)` | `"Yếu"` |
-| `[5.0, 6.5)` | `"Trung bình"` |
-| `[6.5, 8.0)` | `"Khá"` |
-| `[8.0, 10.0]` | `"Giỏi"` |
-| Ngoài `[0.0, 10.0]` | Ném `IllegalArgumentException` |
-
-Code ban đầu có lỗi ở xử lý biên `5.0` và `6.5`.
-
-Cụ thể, code cũ dùng:
+và:
 
 ```java
-if (gpa <= 5.0) return "Yếu";
-if (gpa <= 6.5) return "Trung bình";
+withdraw(double amount)
 ```
-
-Trong khi theo JavaDoc:
-
-- `gpa = 5.0` phải thuộc nhóm `"Trung bình"`, không phải `"Yếu"`.
-- `gpa = 6.5` phải thuộc nhóm `"Khá"`, không phải `"Trung bình"`.
 
 Bài làm thiết kế test case bằng:
 
-- **Equivalence Partitioning (EP)**.
-- **Boundary Value Analysis (BVA)**.
-- JUnit test với `assertEquals`.
-- JUnit test ngoại lệ với `assertThrows`.
-
-Sau khi chạy test trên code lỗi, các test tại biên `5.0` và `6.5` bị fail. Sau đó sửa hàm `classifyGrade()` để toàn bộ test đều pass.
+- **Equivalence Partitioning (EP)** cho `deposit()` và `withdraw()`.
+- **Boundary Value Analysis (BVA)** cho `deposit()` và `withdraw()`.
+- JUnit test với số dư ban đầu là `500` trước mỗi test.
+- Một test kiểm tra tính nhất quán số dư theo chuỗi thao tác:
+  - Số dư ban đầu `0`
+  - Nạp `500`
+  - Rút `200` thành công
+  - Rút `400` thất bại
+  - Số dư cuối cùng phải là `300`
 
 ## 2. Thiết kế hệ thống
 
-### Lớp `GradeClassifier`
+### Lớp `BankAccount`
 
 ```java
-public class GradeClassifier
+public class BankAccount
 ```
+
+#### Thuộc tính
+
+- `accountNumber`: số tài khoản.
+- `ownerName`: tên chủ tài khoản.
+- `balance`: số dư hiện tại.
 
 #### Vai trò
 
-`GradeClassifier` là class chứa hàm phân loại học lực dựa trên GPA.
+`BankAccount` đại diện cho một tài khoản ngân hàng.
 
-#### Phương thức chính
+Lớp này chịu trách nhiệm:
+
+- Lưu thông tin tài khoản.
+- Lưu số dư.
+- Xử lý nạp tiền.
+- Xử lý rút tiền.
+- Cung cấp số dư hiện tại.
+
+---
+
+### Constructor không có số dư ban đầu
 
 ```java
-public static String classifyGrade(double gpa)
+public BankAccount(String accountNumber, String ownerName)
 ```
 
-#### Logic đúng theo JavaDoc
+#### Logic xử lý
 
-Nếu `gpa` nằm ngoài khoảng `[0.0, 10.0]`, hàm ném ngoại lệ:
-
-```java
-throw new IllegalArgumentException("GPA không hợp lệ: " + gpa);
-```
-
-Nếu hợp lệ, GPA được phân loại như sau:
+Constructor này tạo tài khoản mới với số dư mặc định:
 
 ```java
-if (gpa < 5.0) return "Yếu";
-if (gpa < 6.5) return "Trung bình";
-if (gpa < 8.0) return "Khá";
-return "Giỏi";
+this.balance = 0.0;
 ```
 
 ---
 
-### Lớp `GradeClassifierTest`
+### Constructor có số dư ban đầu
 
 ```java
-public class GradeClassifierTest
+public BankAccount(String accountNumber, String ownerName, double initialBalance)
+```
+
+#### Logic xử lý
+
+Nếu `initialBalance < 0`, chương trình in thông báo lỗi ra `System.err` và gán số dư mặc định là `0.0`.
+
+```java
+if (initialBalance < 0) {
+    System.err.println("Số dư ban đầu không hợp lệ. Gán mặc định là 0.");
+    this.balance = 0.0;
+}
+```
+
+Nếu `initialBalance >= 0`, số dư được gán bằng giá trị truyền vào.
+
+---
+
+### Phương thức `deposit`
+
+```java
+public void deposit(double amount)
 ```
 
 #### Vai trò
 
-`GradeClassifierTest` chứa toàn bộ test case được thiết kế dựa trên JavaDoc.
+Nạp tiền vào tài khoản.
 
-Test class này kiểm tra:
+#### Logic xử lý
 
-- Các lớp tương đương của `gpa`.
-- Các giá trị biên của `gpa`.
-- Các trường hợp ngoại lệ khi `gpa < 0.0` hoặc `gpa > 10.0`.
-- Nội dung thông báo lỗi khi có ngoại lệ.
-
-#### Các assertion được dùng
+Nếu `amount <= 0`, hàm ném ngoại lệ:
 
 ```java
-assertEquals(expected, actual)
+throw new IllegalArgumentException("Số tiền nạp phải lớn hơn 0.");
 ```
 
-Dùng để kiểm tra kết quả phân loại GPA.
+Nếu `amount > 0`, số dư tăng thêm `amount`:
+
+```java
+this.balance += amount;
+```
+
+---
+
+### Phương thức `withdraw`
+
+```java
+public boolean withdraw(double amount)
+```
+
+#### Vai trò
+
+Rút tiền khỏi tài khoản.
+
+#### Logic xử lý
+
+Nếu `amount <= 0`, hàm ném ngoại lệ:
+
+```java
+throw new IllegalArgumentException("Số tiền rút phải lớn hơn 0.");
+```
+
+Nếu `amount > balance`, hàm trả về `false` và số dư không thay đổi.
+
+Nếu `0 < amount <= balance`, hàm trừ số tiền rút khỏi số dư và trả về `true`.
+
+---
+
+### Lớp `BankAccountTest`
+
+```java
+public class BankAccountTest
+```
+
+#### Vai trò
+
+`BankAccountTest` chứa toàn bộ test case kiểm thử class `BankAccount`.
+
+#### Các annotation JUnit được sử dụng
+
+```java
+@BeforeEach
+```
+
+Chạy trước mỗi test case để tạo mới tài khoản với số dư ban đầu là `500`.
+
+```java
+@Test
+```
+
+Đánh dấu một phương thức là test case.
+
+#### Các assertion được sử dụng
+
+```java
+assertEquals(expected, actual, DELTA)
+```
+
+Dùng để kiểm tra số dư kiểu `double`.
+
+```java
+assertTrue(result)
+```
+
+Dùng để kiểm tra thao tác rút tiền thành công.
+
+```java
+assertFalse(result)
+```
+
+Dùng để kiểm tra thao tác rút tiền thất bại.
 
 ```java
 assertThrows(IllegalArgumentException.class, executable)
 ```
 
-Dùng để kiểm tra hàm có ném đúng ngoại lệ khi GPA không hợp lệ.
+Dùng để kiểm tra ngoại lệ khi nạp hoặc rút số tiền không hợp lệ.
 
 ## Sơ đồ lớp
 
 ```mermaid
 classDiagram
-    class GradeClassifier {
-        +static String classifyGrade(double gpa)
+    class BankAccount {
+        -String accountNumber
+        -String ownerName
+        -double balance
+        +BankAccount(String accountNumber, String ownerName)
+        +BankAccount(String accountNumber, String ownerName, double initialBalance)
+        +void deposit(double amount)
+        +boolean withdraw(double amount)
+        +double getBalance()
+        +String getAccountNumber()
     }
 
-    class GradeClassifierTest {
-        +void classifyGrade_shouldThrowException_whenGpaLessThanZero()
-        +void classifyGrade_shouldReturnWeak_whenGpaInWeakRange()
-        +void classifyGrade_shouldReturnAverage_whenGpaInAverageRange()
-        +void classifyGrade_shouldReturnGood_whenGpaInGoodRange()
-        +void classifyGrade_shouldReturnExcellent_whenGpaInExcellentRange()
-        +void classifyGrade_shouldThrowException_whenGpaGreaterThanTen()
-        +void classifyGrade_shouldThrowException_whenGpaBelowZeroBoundary()
-        +void classifyGrade_shouldReturnWeak_whenGpaAtZeroBoundary()
-        +void classifyGrade_shouldReturnWeak_whenGpaAboveZeroBoundary()
-        +void classifyGrade_shouldReturnWeak_whenGpaBelowFiveBoundary()
-        +void classifyGrade_shouldReturnAverage_whenGpaAtFiveBoundary()
-        +void classifyGrade_shouldReturnAverage_whenGpaAboveFiveBoundary()
-        +void classifyGrade_shouldReturnAverage_whenGpaBelowSixPointFiveBoundary()
-        +void classifyGrade_shouldReturnGood_whenGpaAtSixPointFiveBoundary()
-        +void classifyGrade_shouldReturnGood_whenGpaAboveSixPointFiveBoundary()
-        +void classifyGrade_shouldReturnGood_whenGpaBelowEightBoundary()
-        +void classifyGrade_shouldReturnExcellent_whenGpaAtEightBoundary()
-        +void classifyGrade_shouldReturnExcellent_whenGpaAboveEightBoundary()
-        +void classifyGrade_shouldReturnExcellent_whenGpaBelowTenBoundary()
-        +void classifyGrade_shouldReturnExcellent_whenGpaAtTenBoundary()
-        +void classifyGrade_shouldThrowException_whenGpaAboveTenBoundary()
+    class BankAccountTest {
+        -double DELTA
+        -BankAccount account
+        +void setUp()
+        +void deposit_shouldThrowException_whenAmountIsNegative()
+        +void deposit_shouldThrowException_whenAmountIsZero()
+        +void deposit_shouldIncreaseBalance_whenAmountIsPositive()
+        +void deposit_shouldThrowException_whenAmountIsJustBelowZero()
+        +void deposit_shouldIncreaseBalance_whenAmountIsJustAboveZero()
+        +void withdraw_shouldThrowException_whenAmountIsNegative()
+        +void withdraw_shouldThrowException_whenAmountIsZero()
+        +void withdraw_shouldReturnTrueAndDecreaseBalance_whenAmountIsLessThanBalance()
+        +void withdraw_shouldReturnTrueAndSetBalanceToZero_whenAmountEqualsBalance()
+        +void withdraw_shouldReturnFalseAndKeepBalance_whenAmountGreaterThanBalance()
+        +void withdraw_shouldThrowException_whenAmountIsJustBelowZero()
+        +void withdraw_shouldReturnTrue_whenAmountIsJustAboveZero()
+        +void withdraw_shouldReturnTrue_whenAmountIsJustBelowBalance()
+        +void withdraw_shouldReturnFalse_whenAmountIsJustAboveBalance()
+        +void account_shouldKeepConsistentBalance_afterDepositAndWithdrawSequence()
     }
 
-    GradeClassifierTest --> GradeClassifier
+    BankAccountTest --> BankAccount
 ```
 
 ## 3. Lý do lựa chọn hướng tiếp cận và ưu điểm
 
 ### Hướng tiếp cận
 
-Bài làm chỉ dựa vào JavaDoc để thiết kế test case, không dựa vào code cài đặt ban đầu.
+Bài làm dùng JUnit 5 để kiểm thử tự động các chức năng của `BankAccount`.
 
-Cách làm này giúp test phản ánh đúng đặc tả thay vì bị ảnh hưởng bởi lỗi trong code.
+Các test được thiết kế theo hai kỹ thuật chính:
 
-Các bước thực hiện:
+1. **Equivalence Partitioning**
 
-1. Đọc JavaDoc để xác định các khoảng GPA hợp lệ.
-2. Chia lớp tương đương bằng EP.
-3. Chọn các giá trị biên bằng BVA.
-4. Viết test JUnit trong class `GradeClassifierTest`.
-5. Chạy test với code ban đầu để phát hiện test fail.
-6. Ghi nhận expected, actual và suy luận lỗi.
-7. Sửa `classifyGrade()` theo đúng JavaDoc.
-8. Thêm test ngoại lệ cho `gpa = -0.1` và `gpa = 10.1`.
-9. Chạy lại để đảm bảo toàn bộ test pass.
+   Chia dữ liệu đầu vào thành các lớp tương đương như:
+
+   - Số tiền âm.
+   - Số tiền bằng `0`.
+   - Số tiền dương hợp lệ.
+   - Số tiền rút nhỏ hơn số dư.
+   - Số tiền rút bằng số dư.
+   - Số tiền rút lớn hơn số dư.
+
+2. **Boundary Value Analysis**
+
+   Kiểm tra các giá trị sát biên quan trọng:
+
+   - Biên `amount = 0`.
+   - Biên `amount = balance`.
+
+Ngoài ra, bài còn có test theo chuỗi thao tác để kiểm tra tính nhất quán của số dư sau nhiều lần nạp và rút.
 
 ### Ưu điểm
 
-- Test được thiết kế theo đặc tả, không phụ thuộc vào code lỗi.
-- EP giúp bao phủ các vùng giá trị chính.
-- BVA giúp phát hiện lỗi ở ranh giới.
-- JUnit giúp tự động hóa quá trình kiểm thử.
-- `assertThrows` giúp kiểm tra rõ ràng các trường hợp ngoại lệ.
-- Việc kiểm tra message lỗi giúp đảm bảo ngoại lệ không chỉ đúng loại mà còn đúng nội dung.
+- Test rõ ràng, chia nhóm theo từng chức năng.
+- Bao phủ cả trường hợp hợp lệ và không hợp lệ.
+- Kiểm tra được ngoại lệ khi dữ liệu đầu vào sai.
+- Kiểm tra được trạng thái số dư sau mỗi thao tác.
+- Sử dụng `@BeforeEach` giúp mỗi test độc lập với nhau.
+- Dùng `DELTA` khi so sánh số thực giúp tránh lỗi so sánh `double`.
 
 ### Kiến thức rút ra
 
 Qua bài này có thể rút ra các kiến thức chính:
 
-- Test case nên được thiết kế từ yêu cầu hoặc JavaDoc.
-- Các lỗi thường xuất hiện ở giá trị biên.
-- Dùng sai `<`, `<=` có thể làm sai phân loại tại ranh giới.
-- EP phù hợp để chọn đại diện cho từng vùng dữ liệu.
-- BVA phù hợp để phát hiện lỗi ở điểm chuyển tiếp giữa các vùng.
-- `assertThrows` dùng để kiểm thử ngoại lệ trong JUnit.
+- Cách viết unit test bằng JUnit 5.
+- Cách dùng `@BeforeEach` để chuẩn bị dữ liệu trước mỗi test.
+- Cách dùng `assertEquals()` với số thực.
+- Cách dùng `assertThrows()` để kiểm tra ngoại lệ.
+- Cách dùng `assertTrue()` và `assertFalse()` để kiểm tra kết quả boolean.
+- Cách thiết kế test case theo EP và BVA.
+- Cách kiểm tra tính nhất quán trạng thái của object sau nhiều thao tác.
 
 ## 4. Ví dụ
 
@@ -194,173 +297,214 @@ Qua bài này có thể rút ra các kiến thức chính:
 
 Chương trình không nhập dữ liệu từ bàn phím.
 
-Dữ liệu kiểm thử được viết trực tiếp trong class `GradeClassifierTest`.
+Dữ liệu test được viết trực tiếp trong class `BankAccountTest`.
 
----
-
-### 4.1. Equivalence Partitioning
-
-Dựa trên JavaDoc, các lớp tương đương của `gpa` là:
-
-| Lớp | Khoảng giá trị | Kết quả mong đợi |
-|---|---:|---|
-| EP1 | `gpa < 0.0` | `IllegalArgumentException` |
-| EP2 | `0.0 <= gpa < 5.0` | `"Yếu"` |
-| EP3 | `5.0 <= gpa < 6.5` | `"Trung bình"` |
-| EP4 | `6.5 <= gpa < 8.0` | `"Khá"` |
-| EP5 | `8.0 <= gpa <= 10.0` | `"Giỏi"` |
-| EP6 | `gpa > 10.0` | `IllegalArgumentException` |
-
-#### Bảng test case EP
-
-| Mã TC | Mô tả | gpa | Kết quả mong đợi |
-|---|---|---:|---|
-| EP01 | GPA nhỏ hơn 0 | `-1.0` | `IllegalArgumentException` |
-| EP02 | GPA thuộc khoảng yếu | `3.0` | `"Yếu"` |
-| EP03 | GPA thuộc khoảng trung bình | `5.5` | `"Trung bình"` |
-| EP04 | GPA thuộc khoảng khá | `7.0` | `"Khá"` |
-| EP05 | GPA thuộc khoảng giỏi | `9.0` | `"Giỏi"` |
-| EP06 | GPA lớn hơn 10 | `11.0` | `IllegalArgumentException` |
-
----
-
-### 4.2. Boundary Value Analysis
-
-Các ranh giới quan trọng là:
-
-```text
-0.0
-5.0
-6.5
-8.0
-10.0
-```
-
-Chọn giá trị ngay dưới, tại và ngay trên mỗi biên.
-
-#### Bảng test case BVA
-
-| Mã TC | Mô tả | gpa | Kết quả mong đợi |
-|---|---|---:|---|
-| BVA01 | Ngay dưới 0.0 | `-0.1` | `IllegalArgumentException` |
-| BVA02 | Tại 0.0 | `0.0` | `"Yếu"` |
-| BVA03 | Ngay trên 0.0 | `0.1` | `"Yếu"` |
-| BVA04 | Ngay dưới 5.0 | `4.9` | `"Yếu"` |
-| BVA05 | Tại 5.0 | `5.0` | `"Trung bình"` |
-| BVA06 | Ngay trên 5.0 | `5.1` | `"Trung bình"` |
-| BVA07 | Ngay dưới 6.5 | `6.4` | `"Trung bình"` |
-| BVA08 | Tại 6.5 | `6.5` | `"Khá"` |
-| BVA09 | Ngay trên 6.5 | `6.6` | `"Khá"` |
-| BVA10 | Ngay dưới 8.0 | `7.9` | `"Khá"` |
-| BVA11 | Tại 8.0 | `8.0` | `"Giỏi"` |
-| BVA12 | Ngay trên 8.0 | `8.1` | `"Giỏi"` |
-| BVA13 | Ngay dưới 10.0 | `9.9` | `"Giỏi"` |
-| BVA14 | Tại 10.0 | `10.0` | `"Giỏi"` |
-| BVA15 | Ngay trên 10.0 | `10.1` | `IllegalArgumentException` |
-
----
-
-### 4.3. Các test bị fail với code ban đầu
-
-Code ban đầu:
+Trước mỗi test, tài khoản được tạo với số dư ban đầu là `500`:
 
 ```java
-if (gpa <= 5.0) return "Yếu";
-if (gpa <= 6.5) return "Trung bình";
-if (gpa < 8.0)  return "Khá";
-return "Giỏi";
-```
-
-Với code này, các test sau sẽ fail:
-
-| Test | gpa | Expected | Actual | Nguyên nhân |
-|---|---:|---|---|---|
-| BVA05 | `5.0` | `"Trung bình"` | `"Yếu"` | Code dùng `gpa <= 5.0` |
-| BVA08 | `6.5` | `"Khá"` | `"Trung bình"` | Code dùng `gpa <= 6.5` |
-
-Lỗi nằm ở điều kiện biên.
-
-Code dùng `<=` tại `5.0` và `6.5`, trong khi JavaDoc yêu cầu hai mốc này thuộc khoảng phía sau.
-
----
-
-### 4.4. Code đúng sau khi sửa
-
-Code đúng là:
-
-```java
-public class GradeClassifier {
-
-    /**
-     * Phân loại học lực dựa trên điểm GPA (thang 10).
-     *   [0.0, 5.0)  → "Yếu"
-     *   [5.0, 6.5)  → "Trung bình"
-     *   [6.5, 8.0)  → "Khá"
-     *   [8.0, 10.0] → "Giỏi"
-     *   Ngoài [0.0, 10.0]: ném IllegalArgumentException
-     */
-    public static String classifyGrade(double gpa) {
-        if (gpa < 0.0 || gpa > 10.0) {
-            throw new IllegalArgumentException("GPA không hợp lệ: " + gpa);
-        }
-
-        if (gpa < 5.0) {
-            return "Yếu";
-        }
-
-        if (gpa < 6.5) {
-            return "Trung bình";
-        }
-
-        if (gpa < 8.0) {
-            return "Khá";
-        }
-
-        return "Giỏi";
-    }
+@BeforeEach
+void setUp() {
+    account = new BankAccount("ACC001", "Nguyen Van A", 500.0);
 }
 ```
 
 ---
 
-### 4.5. Ví dụ test ngoại lệ
+### 4.1. Test case cho `deposit(double amount)`
 
-Theo yêu cầu đề bài, sau khi sửa cần thêm test ngoại lệ cho:
+#### Equivalence Partitioning
 
-```text
-gpa = -0.1
-gpa = 10.1
+Với phương thức:
+
+```java
+deposit(double amount)
 ```
 
-và kiểm tra cả nội dung thông báo lỗi.
+các lớp tương đương là:
+
+| Lớp | Điều kiện | Ý nghĩa | Kết quả mong đợi |
+|---|---:|---|---|
+| DEP_EP1 | `amount < 0` | Số tiền nạp âm | Ném `IllegalArgumentException` |
+| DEP_EP2 | `amount = 0` | Số tiền nạp bằng 0 | Ném `IllegalArgumentException` |
+| DEP_EP3 | `amount > 0` | Số tiền nạp hợp lệ | Số dư tăng thêm `amount` |
+
+#### Bảng test case EP cho `deposit`
+
+| Mã TC | Mô tả | Balance ban đầu | amount | Kết quả mong đợi |
+|---|---|---:|---:|---|
+| DEP_EP_01 | Nạp số tiền âm | `500` | `-100` | Ném `IllegalArgumentException` |
+| DEP_EP_02 | Nạp số tiền bằng 0 | `500` | `0` | Ném `IllegalArgumentException` |
+| DEP_EP_03 | Nạp số tiền hợp lệ | `500` | `200` | Balance = `700` |
+
+---
+
+#### Boundary Value Analysis
+
+Biên quan trọng của `deposit()` là:
+
+```text
+amount = 0
+```
+
+Các giá trị biên:
+
+| Dạng | amount | Kết quả mong đợi |
+|---|---:|---|
+| min- | `-0.01` | Ném `IllegalArgumentException` |
+| min | `0` | Ném `IllegalArgumentException` |
+| min+ | `0.01` | Balance = `500.01` |
+
+#### Bảng test case BVA cho `deposit`
+
+| Mã TC | Mô tả | Balance ban đầu | amount | Kết quả mong đợi |
+|---|---|---:|---:|---|
+| DEP_BVA_01 | Ngay dưới 0 | `500` | `-0.01` | Ném `IllegalArgumentException` |
+| DEP_BVA_02 | Tại 0 | `500` | `0` | Ném `IllegalArgumentException` |
+| DEP_BVA_03 | Ngay trên 0 | `500` | `0.01` | Balance = `500.01` |
+
+---
+
+### 4.2. Test case cho `withdraw(double amount)`
+
+#### Equivalence Partitioning
+
+Với phương thức:
+
+```java
+withdraw(double amount)
+```
+
+và số dư ban đầu là `500`, các lớp tương đương là:
+
+| Lớp | Điều kiện | Ý nghĩa | Kết quả mong đợi |
+|---|---:|---|---|
+| WIT_EP1 | `amount < 0` | Số tiền rút âm | Ném `IllegalArgumentException` |
+| WIT_EP2 | `amount = 0` | Số tiền rút bằng 0 | Ném `IllegalArgumentException` |
+| WIT_EP3 | `0 < amount < balance` | Rút nhỏ hơn số dư | Trả `true`, balance giảm |
+| WIT_EP4 | `amount = balance` | Rút toàn bộ số dư | Trả `true`, balance = `0` |
+| WIT_EP5 | `amount > balance` | Rút vượt quá số dư | Trả `false`, balance không đổi |
+
+#### Bảng test case EP cho `withdraw`
+
+| Mã TC | Mô tả | Balance ban đầu | amount | Kết quả mong đợi |
+|---|---|---:|---:|---|
+| WIT_EP_01 | Rút số tiền âm | `500` | `-100` | Ném `IllegalArgumentException` |
+| WIT_EP_02 | Rút số tiền bằng 0 | `500` | `0` | Ném `IllegalArgumentException` |
+| WIT_EP_03 | Rút nhỏ hơn số dư | `500` | `200` | Trả `true`, balance = `300` |
+| WIT_EP_04 | Rút bằng số dư | `500` | `500` | Trả `true`, balance = `0` |
+| WIT_EP_05 | Rút lớn hơn số dư | `500` | `600` | Trả `false`, balance = `500` |
+
+---
+
+#### Boundary Value Analysis
+
+Có hai biên quan trọng:
+
+```text
+amount = 0
+amount = balance
+```
+
+Với `balance = 500`.
+
+##### Biên `amount = 0`
+
+| Dạng | amount | Kết quả mong đợi |
+|---|---:|---|
+| min- | `-0.01` | Ném `IllegalArgumentException` |
+| min | `0` | Ném `IllegalArgumentException` |
+| min+ | `0.01` | Trả `true`, balance = `499.99` |
+
+##### Biên `amount = balance = 500`
+
+| Dạng | amount | Kết quả mong đợi |
+|---|---:|---|
+| max- | `499.99` | Trả `true`, balance = `0.01` |
+| max | `500` | Trả `true`, balance = `0` |
+| max+ | `500.01` | Trả `false`, balance = `500` |
+
+#### Bảng test case BVA cho `withdraw`
+
+| Mã TC | Mô tả | Balance ban đầu | amount | Kết quả mong đợi |
+|---|---|---:|---:|---|
+| WIT_BVA_01 | Ngay dưới 0 | `500` | `-0.01` | Ném `IllegalArgumentException` |
+| WIT_BVA_02 | Tại 0 | `500` | `0` | Ném `IllegalArgumentException` |
+| WIT_BVA_03 | Ngay trên 0 | `500` | `0.01` | Trả `true`, balance = `499.99` |
+| WIT_BVA_04 | Ngay dưới số dư | `500` | `499.99` | Trả `true`, balance = `0.01` |
+| WIT_BVA_05 | Bằng số dư | `500` | `500` | Trả `true`, balance = `0` |
+| WIT_BVA_06 | Ngay trên số dư | `500` | `500.01` | Trả `false`, balance = `500` |
+
+---
+
+### 4.3. Test kiểm tra tính nhất quán theo trình tự
+
+Yêu cầu đề bài:
+
+```text
+Số dư ban đầu là 0
+→ nạp 500
+→ rút 200 thành công
+→ rút 400 thất bại
+→ kiểm tra số dư cuối phải đúng bằng 300
+```
+
+Code test:
+
+```java
+@Test
+void account_shouldKeepConsistentBalance_afterDepositAndWithdrawSequence() {
+    BankAccount sequenceAccount = new BankAccount("ACC002", "Tran Thi B");
+
+    assertEquals(0.0, sequenceAccount.getBalance(), DELTA);
+
+    sequenceAccount.deposit(500.0);
+    assertEquals(500.0, sequenceAccount.getBalance(), DELTA);
+
+    boolean firstWithdraw = sequenceAccount.withdraw(200.0);
+    assertTrue(firstWithdraw);
+    assertEquals(300.0, sequenceAccount.getBalance(), DELTA);
+
+    boolean secondWithdraw = sequenceAccount.withdraw(400.0);
+    assertFalse(secondWithdraw);
+    assertEquals(300.0, sequenceAccount.getBalance(), DELTA);
+}
+```
+
+Giải thích:
+
+- Ban đầu tài khoản có `0`.
+- Sau khi nạp `500`, số dư là `500`.
+- Rút `200` thành công, số dư còn `300`.
+- Rút `400` thất bại vì số dư chỉ còn `300`.
+- Số dư cuối cùng vẫn là `300`.
+
+---
+
+### 4.4. Vì sao dùng `DELTA` khi so sánh `double`
+
+Vì `balance` và `amount` là kiểu `double`, khi so sánh số thực trong JUnit nên dùng:
+
+```java
+assertEquals(expected, actual, DELTA);
+```
 
 Ví dụ:
 
 ```java
-@Test
-void classifyGrade_shouldThrowException_whenGpaIsMinusZeroPointOne() {
-    IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> GradeClassifier.classifyGrade(-0.1)
-    );
-
-    assertEquals("GPA không hợp lệ: -0.1", exception.getMessage());
-}
+assertEquals(500.01, account.getBalance(), DELTA);
 ```
+
+Trong đó:
 
 ```java
-@Test
-void classifyGrade_shouldThrowException_whenGpaIsTenPointOne() {
-    IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> GradeClassifier.classifyGrade(10.1)
-    );
-
-    assertEquals("GPA không hợp lệ: 10.1", exception.getMessage());
-}
+private static final double DELTA = 0.000001;
 ```
 
-### Output mong đợi sau khi sửa
+`DELTA` là sai số nhỏ được chấp nhận khi so sánh số thực.
+
+---
+
+### Output mong đợi khi chạy test
 
 Khi chạy:
 
@@ -371,36 +515,29 @@ mvn test
 kết quả mong đợi:
 
 ```text
-Tests run: 21, Failures: 0, Errors: 0, Skipped: 0
-BUILD SUCCESS
-```
-
-Nếu tách thêm 2 test ngoại lệ riêng dù đã có trong BVA, tổng số test có thể là `23`. Khi đó kết quả mong đợi là:
-
-```text
-Tests run: 23, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
 ## 5. Kết luận
 
-Bài toán minh họa một lỗi phổ biến trong kiểm thử: lỗi tại giá trị biên.
+Bài toán đã kiểm thử class `BankAccount` bằng JUnit 5.
 
-Dù code ban đầu có vẻ đúng với các giá trị thông thường như `3.0`, `5.5`, `7.0`, `9.0`, nhưng bị sai tại hai mốc quan trọng:
+Bộ test bao phủ được:
 
-- `gpa = 5.0`
-- `gpa = 6.5`
+- Nạp tiền âm.
+- Nạp tiền bằng `0`.
+- Nạp tiền hợp lệ.
+- Nạp tiền ngay dưới và ngay trên biên `0`.
+- Rút tiền âm.
+- Rút tiền bằng `0`.
+- Rút tiền hợp lệ.
+- Rút toàn bộ số dư.
+- Rút vượt quá số dư.
+- Rút tiền ngay dưới, tại và ngay trên các biên quan trọng.
+- Kiểm tra tính nhất quán của số dư sau chuỗi thao tác nạp và rút.
 
-Nhờ áp dụng BVA, lỗi được phát hiện rõ ràng.
-
-Sau khi sửa điều kiện:
-
-```java
-if (gpa < 5.0) return "Yếu";
-if (gpa < 6.5) return "Trung bình";
-```
-
-hàm `classifyGrade()` hoạt động đúng theo JavaDoc và toàn bộ test case đều pass.
+Nhờ đó, có thể xác nhận các hành vi chính của `BankAccount` hoạt động đúng theo yêu cầu.
 
 ## 6. Cách chạy chương trình
 
@@ -409,17 +546,17 @@ hàm `classifyGrade()` hoạt động đúng theo JavaDoc và toàn bộ test ca
 Project nên có cấu trúc Maven như sau:
 
 ```text
-Bai09/
+Bai10/
 ├── pom.xml
 ├── README.md
 ├── run.sh
 └── src/
     ├── main/
     │   └── java/
-    │       └── GradeClassifier.java
+    │       └── BankAccount.java
     └── test/
         └── java/
-            └── GradeClassifierTest.java
+            └── BankAccountTest.java
 ```
 
 ### File `pom.xml`
@@ -439,7 +576,7 @@ Dependency chính cần có:
 
 ### Chạy test bằng Maven
 
-Từ thư mục `Bai09`, chạy:
+Từ thư mục `Bai10`, chạy:
 
 ```bash
 mvn test
@@ -473,20 +610,20 @@ Nếu gặp lỗi:
 
 ```text
 cannot find symbol
-symbol: variable GradeClassifier
-location: class GradeClassifierTest
+symbol: variable BankAccount
+location: class BankAccountTest
 ```
 
-hãy kiểm tra file `GradeClassifier.java` đã được đặt đúng vị trí chưa:
+hãy kiểm tra file `BankAccount.java` đã được đặt đúng vị trí chưa:
 
 ```text
-src/main/java/GradeClassifier.java
+src/main/java/BankAccount.java
 ```
 
 và tên class bên trong phải đúng là:
 
 ```java
-public class GradeClassifier
+public class BankAccount
 ```
 
-Nếu file đang đặt trong `src/test/java`, `src/`, hoặc đặt nhầm tên `Main.java`, Maven sẽ không tìm thấy class `GradeClassifier` khi compile test.
+Nếu file đang đặt trong `src/test/java`, `src/`, hoặc đặt nhầm tên `Main.java`, Maven sẽ không tìm thấy class `BankAccount` khi compile test.
