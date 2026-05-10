@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Customer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Bank System JaCoCo</a> &gt; <a href="index.source.html" class="el_package">bank_system</a> &gt; <span class="el_source">Customer.java</span></div><h1>Customer.java</h1><pre class="source lang-java linenums">package bank_system;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Represents a bank customer. */
+public class Customer {
+  private long idNumber;
+  private String fullName;
+  private List&lt;Account&gt; accountList;
+
+  public Customer() {
+<span class="nc" id="L13">    this(0L, &quot;&quot;);</span>
+<span class="nc" id="L14">  }</span>
+
+<span class="fc" id="L16">  public Customer(long idNumber, String fullName) {</span>
+<span class="fc" id="L17">    this.idNumber = idNumber;</span>
+<span class="fc" id="L18">    this.fullName = fullName;</span>
+<span class="fc" id="L19">    this.accountList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L20">  }</span>
+
+  public long getIdNumber() {
+<span class="fc" id="L23">    return idNumber;</span>
+  }
+
+  public void setIdNumber(long idNumber) {
+<span class="nc" id="L27">    this.idNumber = idNumber;</span>
+<span class="nc" id="L28">  }</span>
+
+  public String getFullName() {
+<span class="fc" id="L31">    return fullName;</span>
+  }
+
+  public void setFullName(String fullName) {
+<span class="nc" id="L35">    this.fullName = fullName;</span>
+<span class="nc" id="L36">  }</span>
+
+  public List&lt;Account&gt; getAccountList() {
+<span class="fc" id="L39">    return accountList;</span>
+  }
+
+  public void setAccountList(List&lt;Account&gt; accountList) {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    this.accountList = accountList == null ? new ArrayList&lt;&gt;() : accountList;</span>
+<span class="nc" id="L44">  }</span>
+
+  public void addAccount(Account account) {
+<span class="pc bpc" id="L47" title="1 of 4 branches missed.">    if (account != null &amp;&amp; !accountList.contains(account)) {</span>
+<span class="fc" id="L48">      accountList.add(account);</span>
+    }
+<span class="fc" id="L50">  }</span>
+
+  public void removeAccount(Account account) {
+<span class="fc" id="L53">    accountList.remove(account);</span>
+<span class="fc" id="L54">  }</span>
+
+  public String getCustomerInfo() {
+<span class="fc" id="L57">    return &quot;So CMND: &quot; + idNumber + &quot;. Ho ten: &quot; + fullName + &quot;.&quot;;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

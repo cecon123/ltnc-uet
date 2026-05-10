@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Account.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Bank System JaCoCo</a> &gt; <a href="index.source.html" class="el_package">bank_system</a> &gt; <span class="el_source">Account.java</span></div><h1>Account.java</h1><pre class="source lang-java linenums">package bank_system;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/** Base class for bank accounts. */
+public abstract class Account {
+  public static final String CHECKING_TYPE = &quot;CHECKING&quot;;
+  public static final String SAVINGS_TYPE = &quot;SAVINGS&quot;;
+
+  private long accountNumber;
+  private double balance;
+  private List&lt;Transaction&gt; transactions;
+
+<span class="fc" id="L16">  protected Account(long accountNumber, double balance) {</span>
+<span class="fc" id="L17">    this.accountNumber = accountNumber;</span>
+<span class="fc" id="L18">    this.balance = balance;</span>
+<span class="fc" id="L19">    this.transactions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L20">  }</span>
+
+  public long getAccountNumber() {
+<span class="fc" id="L23">    return accountNumber;</span>
+  }
+
+  public void setAccountNumber(long accountNumber) {
+<span class="nc" id="L27">    this.accountNumber = accountNumber;</span>
+<span class="nc" id="L28">  }</span>
+
+  public double getBalance() {
+<span class="fc" id="L31">    return balance;</span>
+  }
+
+  protected void setBalance(double balance) {
+<span class="nc" id="L35">    this.balance = balance;</span>
+<span class="nc" id="L36">  }</span>
+
+  public List&lt;Transaction&gt; getTransactionList() {
+<span class="fc" id="L39">    return transactions;</span>
+  }
+
+  public void setTransactionList(List&lt;Transaction&gt; transactions) {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    this.transactions = transactions == null ? new ArrayList&lt;&gt;() : transactions;</span>
+<span class="nc" id="L44">  }</span>
+
+  public abstract void deposit(double amount) throws BankException;
+
+  public abstract void withdraw(double amount) throws BankException;
+
+  protected void doDepositing(double amount) throws InvalidFundingAmountException {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">    if (amount &lt;= 0) {</span>
+<span class="fc" id="L52">      throw new InvalidFundingAmountException(amount);</span>
+    }
+<span class="fc" id="L54">    balance += amount;</span>
+<span class="fc" id="L55">  }</span>
+
+  protected void doWithdrawing(double amount) throws BankException {
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    if (amount &lt;= 0) {</span>
+<span class="nc" id="L59">      throw new InvalidFundingAmountException(amount);</span>
+    }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (amount &gt; balance) {</span>
+<span class="fc" id="L62">      throw new InsufficientFundsException(amount);</span>
+    }
+<span class="fc" id="L64">    balance -= amount;</span>
+<span class="fc" id="L65">  }</span>
+
+  protected void addTransaction(Transaction transaction) {
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">    if (transaction != null) {</span>
+<span class="fc" id="L69">      transactions.add(transaction);</span>
+    }
+<span class="fc" id="L71">  }</span>
+
+  public String getTransactionHistory() {
+<span class="nc" id="L74">    StringBuilder builder = new StringBuilder();</span>
+<span class="nc" id="L75">    builder.append(&quot;Lich su giao dich cua tai khoan &quot;).append(accountNumber).append(&quot;:&quot;);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">    for (Transaction transaction : transactions) {</span>
+<span class="nc" id="L77">      builder.append(System.lineSeparator()).append(transaction.getTransactionSummary());</span>
+<span class="nc" id="L78">    }</span>
+<span class="nc" id="L79">    return builder.toString();</span>
+  }
+
+  @Override
+  public boolean equals(Object object) {
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    if (this == object) {</span>
+<span class="fc" id="L85">      return true;</span>
+    }
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    if (!(object instanceof Account account)) {</span>
+<span class="nc" id="L88">      return false;</span>
+    }
+<span class="nc bnc" id="L90" title="All 2 branches missed.">    return accountNumber == account.accountNumber;</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L95">    return Objects.hash(accountNumber);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

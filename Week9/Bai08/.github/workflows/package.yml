@@ -1,0 +1,39 @@
+name: Package Executable Jar
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  package:
+    name: Build executable jar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK with Maven cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: pom.xml
+
+      - name: Package executable jar
+        run: mvn --batch-mode clean package
+
+      - name: Upload executable jar package
+        uses: actions/upload-artifact@v4
+        with:
+          name: bank-system-executable
+          path: |
+            target/*.jar
+            target/lib/*.jar

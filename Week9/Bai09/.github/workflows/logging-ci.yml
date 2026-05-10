@@ -1,0 +1,38 @@
+name: Professional Logging CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  test-logging:
+    name: Test SLF4J Logback logging
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK with Maven cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: pom.xml
+
+      - name: Run tests and generate logs
+        run: mvn --batch-mode clean test
+
+      - name: Upload generated log file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bank-system-log
+          path: logs/bank-system.log
